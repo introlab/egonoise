@@ -10,6 +10,7 @@ import rospy
 from audio_utils.msg import AudioFrame
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
 import kissdsp.sink as snk
+from utils.calibration_utils import save_db
 
 
 class CalibrationNode:
@@ -20,7 +21,9 @@ class CalibrationNode:
 
         self._input_format_information = get_format_information(self._input_format)
 
-        self._audio_frame_msg = AudioFrame()
+        # TODO
+        # Parameter to delete current database?
+        # Egonoise during calibration?
 
         self._audio_sub = rospy.Subscriber('audio_out', AudioFrame, self._audio_cb, queue_size=10)
 
@@ -32,10 +35,7 @@ class CalibrationNode:
             rospy.logerr('Invalid input format (msg.format={}, param.input_format={})'.format(msg.format, self._input_format))
             return
 
-        frames = convert_audio_data_to_numpy_frames(self._input_format_information, msg.channel_count, msg.data)
-        frames = np.array(frames)[self._channel_keep]
-
-        snk.write(frames, f'{self._database_path}{self.idx}.wav', msg.sampling_frequency)
+        save_db(msg, self.idx, self._channel_keep, self._input_format_information, self._database_path)
 
         self.idx += 1
 

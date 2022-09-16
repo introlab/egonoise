@@ -1,9 +1,0 @@
-input_format: "signed_32"
-output_format: "signed_32"
-format: "signed_32"
-sampling_frequency: 16000
-frame_sample_count: 16000
-frame_size: 512
-channel_count: 16
-
-database_path: "/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"
