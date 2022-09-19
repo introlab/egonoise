@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: ADD library in catkinws and this to the cMakeFile
-import sys
-sys.path.append('/home/pierre-olivier/Git/kissdsp')
-
 import os
 import rospy
 import numpy as np

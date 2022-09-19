@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
-sys.path.append('/home/pierre-olivier/Git/kissdsp')
-
 import rospy
 
 from audio_utils.msg import AudioFrame
