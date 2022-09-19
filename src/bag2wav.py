@@ -8,13 +8,11 @@ import numpy as np
 
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
 from audio_utils.msg import AudioFrame
-
 import kissdsp.sink as snk
 
+
 bag_name = 'noise4micsAfter-STFT-iSTFT'
-
 bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/{bag_name}.bag'
-
 wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/{bag_name}.wav'
 
 audio_frame_msg = AudioFrame()

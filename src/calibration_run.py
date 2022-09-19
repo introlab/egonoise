@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import rosbag
 import rospy
 
 from audio_utils import get_format_information
@@ -13,6 +12,8 @@ class CalibrationRun:
         self._database_path = rospy.get_param('~database_path', '')
         self._channel_keep = rospy.get_param('~channel_keep', '')
         self._bag_path = rospy.get_param('~bag_name', '')
+        self._frame_size = rospy.get_param('~frame_size', '')
+        self._overlap = rospy.get_param('~overlap', '')
 
         self._input_format_information = get_format_information(self._input_format)
 
@@ -21,8 +22,7 @@ class CalibrationRun:
         # Egonoise during calibration?
 
     def run(self):
-        for idx, (_, msg, _) in enumerate(rosbag.Bag(self._bag_path).read_messages()):
-            save_db(msg, idx, self._channel_keep, self._input_format_information, self._database_path)
+        save_db(self._bag_path, self._channel_keep, self._frame_size, self._overlap, self._input_format_information, self._database_path)
 
 
 def main():

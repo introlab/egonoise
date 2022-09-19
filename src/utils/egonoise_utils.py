@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# TODO: ADD library in catkinws and this to the cMakeFile
 import sys
 sys.path.append('/home/pierre-olivier/Git/kissdsp')
 
@@ -9,16 +10,14 @@ import numpy as np
 
 from torchmetrics import SignalNoiseRatio as SDR
 from torch import Tensor
-from torch import stft, istft
 
 import kissdsp.source as src
 import kissdsp.filterbank as fb
 import kissdsp.spatial as sp
 import kissdsp.beamformer as bf
 
-hop = 64
 
-def load_dictionnary(path, frame_size):
+def load_dictionnary(path, frame_size, hop):
     files = os.listdir(path)
     RRs_list = []
     for file in files:
@@ -31,9 +30,9 @@ def load_dictionnary(path, frame_size):
     RRs_dict_inv = np.linalg.inv(RRs_dict)
     return RRs_dict, RRs_dict_inv
 
-def egonoise(frames, RRs_dict, RRs_inv_dict, frame_size, _channel_keep, verbose=False, frames_speech=None, frames_noise=None, use_mask=False):
-    Ys = fb.stft(frames, frame_size=frame_size, hop_size=hop)
 
+def egonoise(frames, RRs_dict, RRs_inv_dict, frame_size, _channel_keep, hop, verbose=False, frames_speech=None, frames_noise=None, use_mask=False):
+    Ys = fb.stft(frames, frame_size=frame_size, hop_size=hop)
     YYs = sp.scm(Ys)
     diff = np.sum(abs(RRs_inv_dict@(YYs-RRs_dict)-np.eye(_channel_keep))**2)
     # diff = np.sum(abs(abs(YYs)**2 - abs(RRs_dict)**2))

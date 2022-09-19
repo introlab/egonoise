@@ -3,16 +3,23 @@
 import sys
 sys.path.append('/home/pierre-olivier/Git/kissdsp')
 
-import rospy
+import rosbag
 import numpy as np
 
-from audio_utils.msg import AudioFrame
-from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
+from audio_utils import convert_audio_data_to_numpy_frames
 import kissdsp.sink as snk
 
 
-def save_db(msg, name, channel_keep, input_format_information, database_path):
-    frames = convert_audio_data_to_numpy_frames(input_format_information, msg.channel_count, msg.data)
-    frames = np.array(frames)[channel_keep]
+def save_db(bag_path, channel_keep, frame_size, overlap, input_format_information, database_path):
+    last_window = None
 
-    snk.write(frames, f'{database_path}{name}.wav', msg.sampling_frequency)
+    for idx, (_, msg, _) in enumerate(rosbag.Bag(bag_path).read_messages()):
+        frames = convert_audio_data_to_numpy_frames(input_format_information, msg.channel_count, msg.data)
+        frames = np.array(frames)[channel_keep]
+
+        if last_window is None:
+            last_window = frames[:, -int(overlap * frame_size):]
+        else:
+            frames = np.hstack((last_window, frames))
+            last_window = frames[:, -int(overlap * frame_size):]
+            snk.write(frames, f'{database_path}{idx}.wav', msg.sampling_frequency)

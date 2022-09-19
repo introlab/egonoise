@@ -8,7 +8,6 @@
     <!-- ARGUMENTS -->
     <arg name="audio_capture" default="false"/>
     <arg name="merge_speech_noise" default="false"/>
-    <arg name="calibration_node" default="false"/>
     <arg name="calibration_run" default="false"/>
     <arg name="egonoise_node" default="false"/>
     <arg name="egonoise_run" default="false"/>
@@ -19,15 +18,17 @@
     <arg name="use_echo_cancellation" default="false"/>
     <arg name="echo_cancellation_dest" default="false"/>
     <arg name="dict_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"/>
-    <arg name="channel_count_in" default="6"/>
-    <arg name="channel_count_out" default="6"/>
+    <arg name="channel_count_in" default="16"/>
+    <arg name="channel_count_out" default="16"/>
     <arg name="sampling_frequency" default="16000"/>
     <arg name="frame_sample_count" default="8000"/>
-    <arg name="frame_size" default="1024"/>
+    <arg name="frame_size" default="512"/>
     <arg name="format" default="signed_32"/>
-    <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/speech4mics.bag"/>
-    <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/noise4mics.bag"/>
-    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/noise4mics.bag"/>
+    <arg name="overlap" default="1.5"/>
+    <arg name="hop_length" default="64"/>
+    <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/speech16mics.bag"/>
+    <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/noise16mics.bag"/>
+    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/noise16mics.bag"/>
 
     <!-- Global parameter -->
 
@@ -49,23 +50,14 @@
         </rosparam>
     </node>
 
-    <!-- CALIBRATION NODE -->
-    <node pkg="egonoise" type="calibration_node.py" name="calibration_node" output="screen" if="$(arg calibration_node)">
-        <param name="input_format" value="$(arg format)"/>
-        <param name="sampling_frequency" value="$(arg sampling_frequency)"/>
-        <param name="database_path" value="$(arg dict_path)"/>
-
-        <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
-        <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
-    </node>
-
     <!-- CALIBRATION RUN -->
     <node pkg="egonoise" type="calibration_run.py" name="calibration_run" output="screen" if="$(arg calibration_run)">
         <param name="input_format" value="$(arg format)"/>
         <param name="sampling_frequency" value="$(arg sampling_frequency)"/>
         <param name="database_path" value="$(arg dict_path)"/>
         <param name="bag_name" value="$(arg bag_calibration)"/>
-
+        <param name="frame_size" value="$(arg frame_size)"/>
+        <param name="overlap" value="$(arg overlap)"/>
 
         <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
@@ -78,6 +70,8 @@
         <param name="dict_path" value="$(arg dict_path)"/>
         <param name="frame_size" value="$(arg frame_size)"/>
         <param name="channel_count" value="$(arg channel_count_in)"/>
+        <param name="overlap" value="$(arg overlap)"/>
+        <param name="hop_length" value="$(arg hop_length)"/>
 
         <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
@@ -91,7 +85,8 @@
         <param name="frame_size" value="$(arg frame_size)"/>
         <param name="channel_count" value="$(arg channel_count_in)"/>
         <param name="publish" value="$(arg audio_listen)"/>
-
+        <param name="overlap" value="$(arg overlap)"/>
+        <param name="hop_length" value="$(arg hop_length)"/>
 
         <param name="bag_noise" value="$(arg bag_noise)"/>
         <param name="bag_speech" value="$(arg bag_speech)"/>
