@@ -28,9 +28,8 @@ class EgoNoiseRun:
 
         self.RRs_dict, self.RRs_inv_dict = load_dictionnary(self._dict_path, self._frame_size, self._hop_length)
 
-        if self._publish:
-            self._audio_frame_msg = AudioFrame()
-            self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
+        self._audio_frame_msg = AudioFrame()
+        self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
 
         self.last_window = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
 
@@ -46,17 +45,16 @@ class EgoNoiseRun:
                                      verbose=True, frames_speech=frames_speech, frames_noise=frames_noise)
             frame_cleaned = frame_cleaned[:, int(self._overlap/2*self._frame_size):-int(self._overlap/2*self._frame_size)]
 
-            if self._publish:
-                data = convert_numpy_frames_to_audio_data(self._output_format_information, frame_cleaned)
+            data = convert_numpy_frames_to_audio_data(self._output_format_information, frame_cleaned)
 
-                self._audio_frame_msg.header = msg_speech.header
-                self._audio_frame_msg.format = self._output_format
-                self._audio_frame_msg.channel_count = 1
-                self._audio_frame_msg.sampling_frequency = msg_speech.sampling_frequency
-                self._audio_frame_msg.frame_sample_count = msg_speech.frame_sample_count
-                self._audio_frame_msg.data = data
+            self._audio_frame_msg.header = msg_speech.header
+            self._audio_frame_msg.format = self._output_format
+            self._audio_frame_msg.channel_count = 1
+            self._audio_frame_msg.sampling_frequency = msg_speech.sampling_frequency
+            self._audio_frame_msg.frame_sample_count = msg_speech.frame_sample_count
+            self._audio_frame_msg.data = data
 
-                self._audio_pub.publish(self._audio_frame_msg)
+            self._audio_pub.publish(self._audio_frame_msg)
 
 
 def main():

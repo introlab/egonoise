@@ -39,11 +39,16 @@ def egonoise(frames, RRs_dict, RRs_inv_dict, frame_size, _channel_keep, hop, ver
 
     if use_mask:
         mask = abs(Zs)**2 / np.mean(abs(Ys)**2, axis=0)
+
+
         TTs = sp.scm(Ys, mask)
         RRs = sp.scm(Ys, 1 - mask)
         Zs, vs, ws = compute_mvdr(Ys, TTs, RRs)
 
+
     zs = fb.istft(Zs, hop_size=hop) # Return to time domain
+    # zs = fb.istft(Ys[3][None, ...], hop_size=hop) # meilleure
+    # zs = fb.istft(Ys[9][None, ...], hop_size=hop) # Pire
 
     if verbose:
         Ts = fb.stft(frames_speech, frame_size=frame_size, hop_size=hop)

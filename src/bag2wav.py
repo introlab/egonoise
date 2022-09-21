@@ -8,7 +8,7 @@ from audio_utils.msg import AudioFrame
 import kissdsp.sink as snk
 
 
-bag_name = 'noise4micsAfter-STFT-iSTFT'
+bag_name = 'filtered'
 bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/{bag_name}.bag'
 wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/{bag_name}.wav'
 
