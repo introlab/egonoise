@@ -27,7 +27,7 @@
     <arg name="overlap" default="1.5"/>
     <arg name="hop_length" default="64"/>
     <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/speech16mics.bag"/>
-    <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/noise16mics.bag"/>
+    <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/whitenoise_ns.bag"/>
     <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/noise16mics.bag"/>
 
     <!-- Global parameter -->
