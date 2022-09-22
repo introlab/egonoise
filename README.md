@@ -74,7 +74,9 @@ password: egonoise
 5. sudo apt-get update (and upgrade?)
 6. Install Python: Pyenv -> https://k0nze.dev/posts/install-pyenv-venv-vscode
 7. Tests with microphones array:
-- Install dependency (Alsa and pulseaudio)
+- Install pulse_audio utils
+- if `pactl list` do `pa_context_connect() failed: Connection refused` try `sudo apt-get --purge --reinstall install pulseaudio`
+- sudo apt-get install libportaudio2
 - Test a python script to make a test record
 8. Install Ros Noetic
 9. Install this project in catkin_ws/src/
