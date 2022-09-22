@@ -79,8 +79,10 @@ password: egonoise
 - sudo apt-get install libportaudio2
 - Test a python script to make a test record
 8. Install Ros Noetic
-9. Install this project in catkin_ws/src/
-10. Install audio_utils
-11. Test
+- Use `catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3` for the first catkin_make
+9 Install KissDsp
+10. Install this project in catkin_ws/src/
+11. Install audio_utils
+12. Test
 TODO: Need to improve the step 
 
