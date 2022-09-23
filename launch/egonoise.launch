@@ -1,7 +1,7 @@
 <launch>
     <!-- Source name
     alsa_input.usb-SEEED_ReSpeaker_4_Mic_Array__UAC1.0_-00.multichannel-input
-    pulse_audio_source" default="alsa_input.usb-IntRoLab_16SoundsUSB_Audio_2.0-00.multichannel-input
+    alsa_input.usb-IntRoLab_16SoundsUSB_Audio_2.0-00.multichannel-input
     alsa_output.pci-0000_00_1f.3.analog-stereo
     -->
 
@@ -18,14 +18,15 @@
     <arg name="use_echo_cancellation" default="false"/>
     <arg name="echo_cancellation_dest" default="false"/>
     <arg name="dict_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"/>
-    <arg name="channel_count_in" default="16"/>
-    <arg name="channel_count_out" default="16"/>
+    <arg name="channel_count_in" default="6"/>
+    <arg name="channel_count_out" default="6"/>
     <arg name="sampling_frequency" default="16000"/>
     <arg name="frame_sample_count" default="8000"/>
     <arg name="frame_size" default="512"/>
     <arg name="format" default="signed_32"/>
     <arg name="overlap" default="1.5"/>
     <arg name="hop_length" default="64"/>
+    <arg name="latency_us" default="40000"/>
     <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/speech16mics.bag"/>
     <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/whitenoise_ns.bag"/>
     <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/noise16mics.bag"/>
@@ -41,6 +42,7 @@
         <param name="frame_sample_count" value="$(arg frame_sample_count)"/>
         <param name="merge" value="false"/>
         <param name="gain" value="1.0"/>
+        <param name="latency_us" value="$(arg latency_us)"/>
 
         <param if="$(eval arg('channel_count_in')==6)" name="device" value="alsa_input.usb-SEEED_ReSpeaker_4_Mic_Array__UAC1.0_-00.multichannel-input"/>
         <param if="$(eval arg('channel_count_in')==16)" name="device" value="alsa_input.usb-IntRoLab_16SoundsUSB_Audio_2.0-00.multichannel-input"/>
@@ -103,8 +105,10 @@
         <param name="channel_count" value="$(arg channel_count_out)"/>
         <param name="sampling_frequency" value="$(arg sampling_frequency)"/>
         <param name="frame_sample_count" value="$(arg frame_sample_count)"/>
+        <param name="latency_us" value="$(arg latency_us)"/>
 
-        <!--remap from="audio_in" to="audio_out"/-->
+
+        <remap from="audio_in" to="audio_out"/>
     </node>
 
     <!-- MERGING -->
