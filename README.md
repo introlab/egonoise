@@ -83,6 +83,6 @@ password: egonoise
 9 Install KissDsp
 10. Install this project in catkin_ws/src/
 11. Install audio_utils
-12. Test
-TODO: Need to improve the step 
+12. Test with: `roslaunch egonoise egonoise.launch audio_capture:=true` with the good parameter.
+13. Follow the guide https://husarion.com/tutorials/ros-tutorials/5-running-ros-on-multiple-machines/ if you want to record the rosbag on another machine.
 
