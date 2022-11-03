@@ -5,12 +5,12 @@ import numpy as np
 
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames
 from audio_utils.msg import AudioFrame
-import kissdsp.sink as snk
+import kissdsp.io as io
 
 
-bag_name = 'filtered'
-bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/{bag_name}.bag'
-wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/{bag_name}.wav'
+bag_name = 'S12-AL9-2'
+bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/11oct/{bag_name}.bag'
+wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/11oct/{bag_name}.wav'
 
 audio_frame_msg = AudioFrame()
 
@@ -21,4 +21,4 @@ for topic, msg, _ in rosbag.Bag(bag_path).read_messages():
     frames_list.append(frames)
 
 frames_list = np.hstack(frames_list)
-snk.write(frames_list, wav_path_out, msg.sampling_frequency)
+io.write(frames_list, wav_path_out)

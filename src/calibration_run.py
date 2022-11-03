@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
+import shutil
 
 from audio_utils import get_format_information
 from utils.calibration_utils import save_db
@@ -14,15 +15,12 @@ class CalibrationRun:
         self._bag_path = rospy.get_param('~bag_name', '')
         self._frame_size = rospy.get_param('~frame_size', '')
         self._overlap = rospy.get_param('~overlap', '')
+        self._overwrite_dict = rospy.get_param('~overwrite_dict', '')
 
         self._input_format_information = get_format_information(self._input_format)
 
-        # TODO
-        # Parameter to delete current database?
-        # Egonoise during calibration?
-
     def run(self):
-        save_db(self._bag_path, self._channel_keep, self._frame_size, self._overlap, self._input_format_information, self._database_path)
+        save_db(self._bag_path, self._channel_keep, self._frame_size, self._overlap, self._input_format_information, self._database_path, self._overwrite_dict)
 
 
 def main():

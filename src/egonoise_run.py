@@ -2,6 +2,7 @@
 
 import rospy
 import rosbag
+import time
 
 from audio_utils.msg import AudioFrame
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
@@ -27,23 +28,35 @@ class EgoNoiseRun:
         self._audio_frame_msg = AudioFrame()
 
         self.RRs_dict, self.RRs_inv_dict = load_dictionnary(self._dict_path, self._frame_size, self._hop_length)
+        self.pca, self.pca_dict = create_pca(RRs_dict=self.RRs_dict, n_components=self.RRs_dict.shape[0])
 
         self._audio_frame_msg = AudioFrame()
         self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
 
         self.last_window = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
+        self.last_window_s = np.zeros((len(self._channel_keep), int(self._overlap * self._frame_size)))
+        self.last_window_n = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
+
 
     def run(self):
+        snr_dt = 0
+        snr_b = 0
+        nd = 0
         for (_, msg_speech, _), (_, msg_noise, _) in zip(rosbag.Bag(self._bag_speech).read_messages(), rosbag.Bag(self._bag_noise).read_messages()):
-            frames_speech = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_speech.channel_count, msg_speech.data))[self._channel_keep]
+            frames_speech = 2*np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_speech.channel_count, msg_speech.data))[self._channel_keep]
             frames_noise = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_noise.channel_count, msg_noise.data))[self._channel_keep]
             frames = frames_speech + frames_noise
             frames = np.hstack((self.last_window, frames))
+            frames_speech = np.hstack((self.last_window_s, frames_speech))
+            frames_noise = np.hstack((self.last_window_n, frames_noise))
             self.last_window = frames[:, -int(self._overlap*self._frame_size):]
-            frame_cleaned = egonoise(frames, self.RRs_dict, self.RRs_inv_dict,
+            self.last_window_s = frames_speech[:, -int(self._overlap*self._frame_size):]
+            self.last_window_n = frames_noise[:, -int(self._overlap*self._frame_size):]
+            frame_cleaned, sdt, sb = egonoise(frames, self.RRs_dict, self.RRs_inv_dict, self.pca, self.pca_dict,
                                      self._frame_size, len(self._channel_keep), self._hop_length,
-                                     verbose=True, frames_speech=frames_speech, frames_noise=frames_noise)
+                                     verbose=False, frames_speech=frames_speech, frames_noise=frames_noise)
             frame_cleaned = frame_cleaned[:, int(self._overlap/2*self._frame_size):-int(self._overlap/2*self._frame_size)]
+            # print(f'Speech: {np.sum(abs(frames_speech))}, Noise: {np.sum(abs(frames_noise))}')
 
             data = convert_numpy_frames_to_audio_data(self._output_format_information, frame_cleaned)
 
@@ -55,6 +68,14 @@ class EgoNoiseRun:
             self._audio_frame_msg.data = data
 
             self._audio_pub.publish(self._audio_frame_msg)
+
+            if sdt is not None:
+                snr_dt += sdt
+                snr_b += sb
+                nd += 1
+
+        print(f'SNR dt: {snr_dt/nd}')
+        print(f'SNR b: {snr_b/nd}')
 
 
 def main():
