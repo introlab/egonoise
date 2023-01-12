@@ -24,7 +24,7 @@ class CalibrationRun:
 
 
 def main():
-    rospy.init_node('calibration_run', log_level=rospy.DEBUG)
+    rospy.init_node('calibration_run', log_level=rospy.INFO)
     calibration_run = CalibrationRun()
     calibration_run.run()
 

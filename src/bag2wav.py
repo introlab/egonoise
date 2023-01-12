@@ -8,9 +8,10 @@ from audio_utils.msg import AudioFrame
 import kissdsp.io as io
 
 
-bag_name = 'S12-AL9-2'
-bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/11oct/{bag_name}.bag'
-wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/11oct/{bag_name}.wav'
+bag_name = 'S5en'
+bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/12jan/{bag_name}.bag'
+wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/12jan/{bag_name}.wav'
+sf = 32000
 
 audio_frame_msg = AudioFrame()
 
@@ -21,4 +22,4 @@ for topic, msg, _ in rosbag.Bag(bag_path).read_messages():
     frames_list.append(frames)
 
 frames_list = np.hstack(frames_list)
-io.write(frames_list, wav_path_out)
+io.write(frames_list, wav_path_out, sf)

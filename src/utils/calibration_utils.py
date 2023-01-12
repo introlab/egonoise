@@ -32,7 +32,7 @@ def save_db(bag_path, channel_keep, frame_size, overlap, input_format_informatio
 
     i = 0
     idx = 0
-    step = 2000
+    step = 4000
     while (i+len_window)<frames_all.shape[1]:
         window = frames_all[:, i:(i+len_window)]
         io.write(window, f'{database_path}{idx + start_idx}.wav')

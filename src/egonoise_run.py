@@ -28,7 +28,7 @@ class EgoNoiseRun:
         self._audio_frame_msg = AudioFrame()
 
         self.RRs_dict, self.RRs_inv_dict = load_dictionnary(self._dict_path, self._frame_size, self._hop_length)
-        self.pca, self.pca_dict = create_pca(RRs_dict=self.RRs_dict, n_components=self.RRs_dict.shape[0])
+        self.pca, self.pca_dict = create_pca(RRs_dict=self.RRs_dict, n_components=100)#=self.RRs_dict.shape[0])
 
         self._audio_frame_msg = AudioFrame()
         self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
@@ -43,9 +43,9 @@ class EgoNoiseRun:
         snr_b = 0
         nd = 0
         for (_, msg_speech, _), (_, msg_noise, _) in zip(rosbag.Bag(self._bag_speech).read_messages(), rosbag.Bag(self._bag_noise).read_messages()):
-            frames_speech = 2*np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_speech.channel_count, msg_speech.data))[self._channel_keep]
+            frames_speech = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_speech.channel_count, msg_speech.data))[self._channel_keep]
             frames_noise = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_noise.channel_count, msg_noise.data))[self._channel_keep]
-            frames = frames_speech + frames_noise
+            frames = frames_noise + frames_speech
             frames = np.hstack((self.last_window, frames))
             frames_speech = np.hstack((self.last_window_s, frames_speech))
             frames_noise = np.hstack((self.last_window_n, frames_noise))
@@ -56,7 +56,6 @@ class EgoNoiseRun:
                                      self._frame_size, len(self._channel_keep), self._hop_length,
                                      verbose=False, frames_speech=frames_speech, frames_noise=frames_noise)
             frame_cleaned = frame_cleaned[:, int(self._overlap/2*self._frame_size):-int(self._overlap/2*self._frame_size)]
-            # print(f'Speech: {np.sum(abs(frames_speech))}, Noise: {np.sum(abs(frames_noise))}')
 
             data = convert_numpy_frames_to_audio_data(self._output_format_information, frame_cleaned)
 
