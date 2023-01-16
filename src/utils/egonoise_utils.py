@@ -124,13 +124,6 @@ def irm(Ys, frames_noise, frames_speech, frame_size, hop):
     return RRs, TTs
 
 
-def intensity(YYs, RRs):
-    diff_intensity_real = np.array(1)#1 + (((np.mean((YYs.real - RRs.real)))) / np.mean(abs(YYs.real)))
-    RRs = RRs * diff_intensity_real[..., None, None]
-
-    return RRs
-
-
 def compute_diff(YYs, RRs_dict, RRs_inv_dict, n_channels):
     # diff = np.sum(abs(RRs_inv_dict@(YYs-RRs_dict)-np.eye(n_channels))**2, axis=(1,2,3))
     diff = np.sum(abs(YYs - RRs_dict) ** 2, axis=(1, 2, 3))

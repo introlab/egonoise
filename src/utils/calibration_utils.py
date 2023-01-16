@@ -27,6 +27,8 @@ def save_db(bag_path, channel_keep, frame_size, overlap, input_format_informatio
         frames = np.array(frames)[channel_keep]
         frames_all.append(frames)
 
+    sr = msg.sampling_frequency
+
     frames_all = np.hstack(frames_all)
     len_window = msg.frame_sample_count + int(overlap * frame_size)
 
@@ -35,6 +37,6 @@ def save_db(bag_path, channel_keep, frame_size, overlap, input_format_informatio
     step = 4000
     while (i+len_window)<frames_all.shape[1]:
         window = frames_all[:, i:(i+len_window)]
-        io.write(window, f'{database_path}{idx + start_idx}.wav')
+        io.write(window, f'{database_path}{idx + start_idx}.wav', sr)
         i = i+step
         idx = idx+1

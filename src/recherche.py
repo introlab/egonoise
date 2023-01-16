@@ -4,8 +4,12 @@ import rosbag
 import rospy
 import numpy as np
 import time
+import os
+import logging
 
 import matplotlib.pyplot as plt
+
+from datetime import datetime
 
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames
 from audio_utils.msg import AudioFrame
@@ -17,7 +21,33 @@ import kissdsp.spatial as sp
 import kissdsp.beamformer as bf
 
 
+# Create logger
+logger = logging.getLogger('Recherche')
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(message)s')
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+# Create row style for result table
+list_metrics_names = [
+    'idx',
+    'SNR before', 'SNR after', 'SNR delta',
+    'SDR before', 'SDR after', 'SDR delta', 'SDR speech',
+    'Speech presence', 'Traiting time'
+]
+row_format = "{:^18}" * (len(list_metrics_names))
+
+# Paths
 dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database/'
+bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/January/12jan/'
+
+# Create folder for current session
+session_path = f'{bag_path}/{datetime.now()}/'
+os.mkdir(session_path)
 
 audio_frame_msg = AudioFrame()
 
@@ -27,6 +57,7 @@ frame_size = 1024
 hop_length = 256
 hop = hop_length
 sf = 32000
+frame_sample_count = 16000
 
 RRs_dict, RRs_inv_dict = load_dictionnary_mp(dict_path, frame_size, hop_length)
 max_real = np.max(RRs_dict.real)
@@ -37,22 +68,45 @@ last_window = np.zeros((n_channel, int(overlap * frame_size)))
 last_window_s = np.zeros((n_channel, int(overlap * frame_size)))
 last_window_n = np.zeros((n_channel, int(overlap * frame_size)))
 
-j = 0
-s_filter = []
+list_all_metrics = []
 
-for bag_noise in [
-    f'/home/pierre-olivier/catkin_ws/src/bag/12jan/AL3.bag'
+for bag_speech in [
+    'S1en',
+    'S2en',
+    'S3en',
+    'S4en',
+    'S5en'
 ]:
-    for bag_speech in [
-        f'/home/pierre-olivier/catkin_ws/src/bag/12jan/S5en.bag'
+    for bag_noise in [
+        # 'AL2',
+        'AL3'
     ]:
-        list_snr_b = []
-        list_snr_a = []
-        list_sdr_n_b = []
-        list_sdr_n_a = []
-        for (_, msg_speech, _), (_, msg_noise, _) in zip(rosbag.Bag(bag_speech).read_messages(),
-                                                         rosbag.Bag(bag_noise).read_messages()):
-            t_start = time()
+        # Create folder to save results
+        path_out = f'{session_path}{bag_speech}_{bag_noise}/'
+        os.mkdir(path_out)
+
+        # List to save all metrics during infering
+        list_metrics = []
+        signal_filter = []
+        signal_voice = []
+        signal_noisy =[]
+
+        # Create logger and log the info of the current session
+        fhdlr = logging.FileHandler(filename=f'{path_out}info.log', mode='a')
+        fhdlr.setLevel(logging.INFO)
+        fhdlr.setFormatter(formatter)
+        logger.addHandler(fhdlr)
+
+        # Log the info of the session
+        logger.info(f'Bag noise: {bag_noise}')
+        logger.info(f'Bag speech: {bag_speech}\n')
+
+        logger.info(row_format.format(*list_metrics_names))
+
+        for j, ((_, msg_speech, _), (_, msg_noise, _)) in enumerate(zip(rosbag.Bag(f'{bag_path}{bag_speech}.bag').read_messages(),
+                                                         rosbag.Bag(f'{bag_path}{bag_noise}.bag').read_messages())):
+            t_idx_start_wav = time()
+            # Convert frames to numpy array
             frames_speech = np.array(
                 convert_audio_data_to_numpy_frames(
                     get_format_information(msg_speech.format),
@@ -65,10 +119,17 @@ for bag_noise in [
                     msg_noise.data))
 
             frames = frames_noise + frames_speech
+
+            # Creating a list with only and noisy signal to be able to save it as .wav file
+            signal_voice.extend(np.sum(frames_speech, axis=0))
+            signal_noisy.extend(np.sum(frames, axis=0))
+
+            # Adding the overlap to frames
             frames = np.hstack((last_window, frames))
             frames_speech = np.hstack((last_window_s, frames_speech))
             frames_noise = np.hstack((last_window_n, frames_noise))
 
+            # Saving overlap for the next frames
             last_window = frames[:, -int(overlap * frame_size):]
             last_window_s = frames_speech[:, -int(overlap * frame_size):]
             last_window_n = frames_noise[:, -int(overlap * frame_size):]
@@ -89,14 +150,15 @@ for bag_noise in [
             # ISTFT
             zs = fb.istft(Zs, hop_size=hop)
 
-            t_end = time()
+            # Traiting time
+            time_dt = time() - t_idx_start_wav
 
-            # Save
-            start = int(overlap/2*frame_size)
-            end = -int(overlap/2*frame_size)
-            Start = int((overlap/2)*frame_size/hop)
-            End = -int((overlap/2)*frame_size/hop)
-            s_filter.extend(zs[0, start:end])
+            # Index of true trame
+            idx_start_wav = int(overlap/2*frame_size)
+            idx_end_wav = -int(overlap/2*frame_size)
+            idx_start_spec = int((overlap/2)*frame_size/hop)
+            idx_end_spec = -int((overlap/2)*frame_size/hop)
+            signal_filter.extend(zs[0, idx_start_wav:idx_end_wav])
 
             Rs = fb.stft(frames_noise, frame_size=frame_size, hop_size=hop)
             RRs_best = sp.scm(sp.xspec(Rs))
@@ -108,40 +170,85 @@ for bag_noise in [
             zs_best = fb.istft(Zs_best, hop_size=hop)
 
             # SNR
-            snr_begining = snr(Ts[:, Start:End],
-                               Rs[:, Start:End])
-            snr_after = snr(bf.beam(Ts[:, Start:End], ws),
-                            bf.beam(Rs[:, Start:End], ws))
+            snr_begining = snr(Ts[:, idx_start_spec:idx_end_spec],
+                               Rs[:, idx_start_spec:idx_end_spec])
+            snr_after = snr(bf.beam(Ts[:, idx_start_spec:idx_end_spec], ws),
+                            bf.beam(Rs[:, idx_start_spec:idx_end_spec], ws))
             snr_dt = snr_after-snr_begining
 
             # SDR noise + speech
-            sdr_n_begining = sdr(Tensor(frames[:, start:end]), Tensor(frames_speech[:, start:end]))
-            sdr_n_after = sdr(Tensor(zs[:, start:end]), Tensor(zs_best[:, start:end]))
-            sdr_n_dt= sdr_n_after-sdr_n_begining
+            sdr_noisy_begining = sdr(Tensor(frames[:, idx_start_wav:idx_end_wav]), Tensor(frames_speech[:, idx_start_wav:idx_end_wav]))
+            sdr_noisy_after = sdr(Tensor(zs[:, idx_start_wav:idx_end_wav]), Tensor(zs_best[:, idx_start_wav:idx_end_wav]))
+            sdr_noisy_dt = sdr_noisy_after-sdr_noisy_begining
 
             # SDR speech only
-            sdr_after = sdr(Tensor(fb.istft(bf.beam(Ts, ws), hop_size=hop)[:, start:end]), Tensor(fb.istft(bf.beam(Ts, ws_best), hop_size=hop)[:, start:end]))
+            sdr_speech = sdr(Tensor(fb.istft(bf.beam(Ts, ws), hop_size=hop)[:, idx_start_wav:idx_end_wav]), Tensor(fb.istft(bf.beam(Ts, ws_best), hop_size=hop)[:, idx_start_wav:idx_end_wav]))
 
-            if sdr_after>6.5:
-                print(f'{j}, {np.sum(abs(frames_speech))}, SNR before: {np.round(snr_begining, 2)}, SNR amelioration: {np.round(snr_dt, 2)},'
-                      f'SDR before: {np.round(sdr_n_begining, 2)}, SDR after: {np.round(sdr_n_after, 2)},'
-                      f' SDR speech only: {np.round(sdr_after, 2)}, Time: {np.round(t_end-t_start, 3)}')
+            # Speech intensity
+            speech_intensity = np.sum(abs(Ts[0, :, 100:])**2)
 
-                list_snr_b.append(snr_begining)
-                list_snr_a.append(snr_after)
-                list_sdr_n_b.append(sdr_n_begining)
-                list_sdr_n_a.append(sdr_n_after)
-            j += 1
+            # Logging info
+            if np.sum(abs(Ts[0, :, 100:])**2)>5:
+                metrics = np.array([
+                    snr_begining, snr_after, snr_dt,
+                    sdr_noisy_begining, sdr_noisy_after, sdr_noisy_dt, sdr_speech,
+                    speech_intensity, time_dt
+                ])
+                logger.info(row_format.format(j, *np.round(metrics,2)))
 
-        list_snr_b = np.array(list_snr_b)
-        list_snr_a = np.array(list_snr_a)
-        list_sdr_n_b = np.array(list_sdr_n_b)
-        list_sdr_n_a = np.array(list_sdr_n_a)
-        s_filter = np.array(s_filter)
-        io.write(s_filter, f'/home/pierre-olivier/catkin_ws/src/bag/result.wav', sf)
+                list_metrics.append(metrics)
 
-        print(f'speech bag: {bag_speech}')
-        print(f'mean SNR before: {np.mean(list_snr_b)}')
-        print(f'mean SNR dt: {np.mean(list_snr_a - list_snr_b)}')
-        print(f'mean SDR before: {np.mean(list_sdr_n_b)}')
-        print(f'mean SDR after: {np.mean(list_sdr_n_a)}')
+
+        # Convert list to numpy array
+        list_metrics = np.array(list_metrics)
+        signal_filter, signal_voice, signal_noisy = np.array(signal_filter), np.array(signal_voice), np.array(signal_noisy)
+
+        # Append list_metrics to a list containing all tests
+        list_all_metrics.extend(list_metrics)
+
+        # Write .wav for future analysis
+        io.write(signal_filter, f'{path_out}result.wav', sf)
+        io.write(signal_voice, f'{path_out}voice.wav', sf)
+        io.write(signal_noisy, f'{path_out}noise.wav', sf)
+
+        # Logging means
+        mean_metrics = np.round(np.mean(list_metrics, axis=0), 2)
+        metrics = np.array([
+            mean_metrics[0], mean_metrics[1], mean_metrics[2],
+            mean_metrics[3], mean_metrics[4], mean_metrics[5], mean_metrics[6],
+            mean_metrics[7], mean_metrics[8]
+        ])
+        logger.info(f'\n{row_format.format("Mean", *metrics)}')
+
+        logger.info(f'\nPARAMETERS')
+        logger.info(f'Sampling rate: {sf} Hz')
+        logger.info(f'overlap: {overlap}')
+        logger.info(f'frame_size: {frame_size} ')
+        logger.info(f'Hop length: {hop_length}')
+        logger.info(f'frame_sample_count: {frame_sample_count}')
+        logger.info(f'Dictionnary size: {len(pca_dict)}\n')
+
+        # Delete logger for future run
+        logger.removeHandler(fhdlr)
+
+# Convert list to numpy array
+list_all_metrics = np.array(list_all_metrics).T
+
+# Graphics
+## SNR
+figure = plt.figure(figsize=(5, 3), dpi=300)
+ax = figure.add_subplot()
+ax.set_title('SNR before and after filtering on every trame')
+ax.set_ylabel('SNR filtered signal (dB)')
+ax.set_xlabel('SNR noisy signal (dB)')
+ax.scatter(list_all_metrics[0], list_all_metrics[1], marker='.')
+plt.savefig(fname=f'{session_path}SNR', format='pdf', bbox_inches='tight')
+
+## SDR
+figure = plt.figure(figsize=(5, 3), dpi=300)
+ax = figure.add_subplot()
+ax.set_title('SDR before and after filtering on every trame')
+ax.set_ylabel('SDR filtered signal (dB)')
+ax.set_xlabel('SDR noisy signal (dB)')
+ax.scatter(list_all_metrics[3], list_all_metrics[4], marker='.')
+plt.savefig(fname=f'{session_path}SDR', format='pdf', bbox_inches='tight')

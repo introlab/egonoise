@@ -28,9 +28,9 @@
     <arg name="overlap" default="5.0"/>
     <arg name="hop_length" default="256"/>
     <arg name="latency_us" default="40000"/>
-    <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/9jan/S3_30_8000.bag"/>
-    <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/9jan/ALc5_30_8000.bag"/>
-    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/12jan/AL1.bag"/>
+    <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/January/9jan/S3_30_8000.bag"/>
+    <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/January/9jan/ALc5_30_8000.bag"/>
+    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/January/12jan/AL2.bag"/>
 
     <!-- Global parameter AL2_60_8000 -->
 
