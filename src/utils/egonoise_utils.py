@@ -132,9 +132,16 @@ def compute_diff(YYs, RRs_dict, RRs_inv_dict, n_channels):
 
 
 def compute_mvdr(Ys, TTs, RRs):
-    # vs = sp.steering(TTs)  # Compute steering vector
-    # ws = bf.mvdr(vs, RRs)  # Compute mvdr weights
-    ws = bf.mvdr(TTs, RRs) # Compute mvdr weights
+    dia = abs(np.diagonal(abs(RRs)**2, axis1=1, axis2=2))
+    dia_norm = dia/np.max(dia, axis=0)
+    diff = np.sum(dia_norm, axis=0)
+
+    ref = np.argmin(diff)
+    # if ref == (6 or 7 or 8 or 9):
+    ref = 0
+    # print(ref)
+
+    ws = bf.mvdr(TTs, RRs, ref) # Compute mvdr weights
     Zs = bf.beam(Ys, ws)  # Perform beamforming
     return Zs, ws
 
