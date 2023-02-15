@@ -25,12 +25,13 @@
     <arg name="frame_sample_count" default="16000"/>
     <arg name="frame_size" default="2048"/>
     <arg name="format" default="signed_32"/>
-    <arg name="overlap" default="5.6875"/>
+    <!-- Overlap: (Y(80) * 256 + 2048 - 16000)/2048   // 3.1875 // 4.4375 -->
+    <arg name="overlap" default="3.1875"/>
     <arg name="hop_length" default="256"/>
     <arg name="latency_us" default="40000"/>
     <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/January/9jan/S3_30_8000.bag"/>
     <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/January/9jan/ALc5_30_8000.bag"/>
-    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/article/2010/AL10.bag"/>
+    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/article/2008/"/>
 
     <!-- Global parameter AL2_60_8000 -->
 
