@@ -1,0 +1,13 @@
+*.wav
+*.cvs
+*.idea
+*.pth
+*.pt
+*.pdf
+*.txt
+*.log
+*.pyc
+*.npy
+model
+
+!requirements.txt
