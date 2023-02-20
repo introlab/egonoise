@@ -11,12 +11,11 @@ from utils import list_info
 class CalibrationRun:
     def __init__(self):
         self._input_format = rospy.get_param('~input_format', '')
-        self._database_path = list_info.dict_path #rospy.get_param('~database_path', '')
+        self._database_path = list_info.dict_path if  rospy.get_param('~research', '') else rospy.get_param('~database_path', '')
         self._channel_keep = rospy.get_param('~channel_keep', '')
-        self._bag_path = list_info.bag_path #rospy.get_param('~bag_name', '')
+        self._bag_path = list_info.bag_path if rospy.get_param('~research', '') else rospy.get_param('~bag_name', '')
         self._frame_size = rospy.get_param('~frame_size', '')
         self._overlap = rospy.get_param('~overlap', '')
-        self._overwrite_dict = rospy.get_param('~overwrite_dict', '')
 
         self._input_format_information = get_format_information(self._input_format)
 

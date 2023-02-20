@@ -8,29 +8,14 @@ from audio_utils.msg import AudioFrame
 import kissdsp.io as io
 
 bag_names = [
-    'MUSIC1',
-    'MUSIC2',
-    'MUSIC3',
-    'MUSIC4',
-    'MUSIC5',
-    'MUSIC6',
-    'MUSIC7',
-    'MUSIC8',
-    'MUSIC9',
-    'MUSIC10',
-    'MUSIC11',
-    'MUSIC12',
-    'MUSIC13',
-    'MUSIC14',
-    'MUSIC15',
-    'MUSIC16'
+    'CALIB_test'
 ]
 
 for bag_name in bag_names:
-    # bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004/{bag_name}.bag'
-    # wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004/{bag_name}.wav'
-    bag_path = f'/home/pierre-olivier/Documents/Data_Article/tagging/2008-music/{bag_name}.bag'
-    wav_path_out = f'/home/pierre-olivier/Documents/Data_Article/tagging/2008-music/{bag_name}.wav'
+    bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/video/{bag_name}.bag'
+    wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/article/video/{bag_name}.wav'
+    # bag_path = f'/home/pierre-olivier/Documents/Data_Article/tagging/scream/2008/{bag_name}.bag'
+    # wav_path_out = f'/home/pierre-olivier/Documents/Data_Article/tagging/scream/2008/{bag_name}.wav'
     sf = 32000
 
     audio_frame_msg = AudioFrame()

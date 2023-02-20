@@ -1,6 +1,13 @@
 
-local = 2008
-event = 'MUSIC'
+n_channel = 16
+overlap = 3.1875
+frame_size = 2048
+hop = 256
+sf = 32000
+frame_sample_count = 16000
+
+local = 'video'
+event = ''
 
 bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/{local}/'
 dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database_{local}/'
@@ -8,14 +15,27 @@ dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database_{local}/'
 if local == 2008:
     list_bag_noise = ['AL5', 'AL6', 'AL7', 'AL8', 'AL15', 'AL16', 'AL17', 'AL18']
     list_bag_database = ['AL1', 'AL2', 'AL3', 'AL11', 'AL12', 'AL13']
-    bg_intensity = 2000
+    bg_intensity = 3000
     gain = 1.0
 
 elif local == 1004:
     list_bag_noise = ['AL3', 'AL4', 'AL5', 'AL12', 'AL14', 'AL22', 'AL23', 'AL25']
     list_bag_database = ['AL1', 'AL2', 'AL11', 'AL15', 'AL21', 'AL24']
-    bg_intensity = 200
+    bg_intensity = 1000
     gain = 1.0
+
+elif local == 3000:
+    list_bag_noise = ['AL2', 'AL4', 'AL6', 'AL7', 'AL13', 'AL15', 'AL17', 'AL18']
+    list_bag_database = ['AL1', 'AL3', 'AL5', 'AL12', 'AL14', 'AL16']
+    bg_intensity = 1500
+    gain = 1.0
+
+elif local == 'video':
+    list_bag_noise = ['VID2']
+    list_bag_target = [['VID2', 1]]
+    list_bag_database = ['CALIB']
+    bg_intensity = 0
+    gain = 0.0
 
 if event == 'DOOR':
     list_bag_target = [
@@ -73,11 +93,26 @@ elif event=='ALARM':
         ['ALARM15', 1],
     ]
 elif event == 'SCREAM':
+    gain = 1
     list_bag_target = [
-        ['SCREAM1', 1]
+        ['SCREAM1', 1],
+        ['SCREAM2', 1],
+        ['SCREAM3', 1],
+        ['SCREAM4', 1],
+        ['SCREAM5', 1],
+        ['SCREAM6', 1],
+        ['SCREAM7', 1],
+        ['SCREAM8', 1],
+        ['SCREAM9', 1],
+        ['SCREAM10', 1],
+        ['SCREAM11', 1],
+        ['SCREAM12', 1],
+        ['SCREAM13', 1],
+        ['SCREAM14', 1],
+        ['SCREAM15', 1],
     ]
 elif event=='SPEECH':
-    gain = 0.8
+    gain = 0.7
     list_bag_target = [
     ['237-126133-0000', 0.8],
     ['237-126133-0001', 0.8],

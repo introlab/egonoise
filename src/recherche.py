@@ -49,13 +49,12 @@ os.mkdir(session_path)
 
 audio_frame_msg = AudioFrame()
 
-n_channel = 16
-overlap = 3.1875
-frame_size = 2048
-hop_length = 256
-hop = hop_length
-sf = 32000
-frame_sample_count = 16000
+n_channel = list_info.n_channel
+overlap = list_info.overlap
+frame_size = list_info.frame_size
+hop = list_info.hop
+sf = list_info.sf
+frame_sample_count = list_info.frame_sample_count
 
 pca, pca_dict = load_pca(dict_path)
 
@@ -141,9 +140,7 @@ for bag_speech, g in list_info.list_bag_target:
             idx = np.argmin(diff)
             RRsInv = load_scm(dict_path, idx, frame_size, len(frames))
 
-            TTs = YYs
-
-            Zs, ws = compute_mvdr(Ys, TTs, RRsInv)
+            Zs, ws = compute_mvdr(Ys, YYs, RRsInv)
 
             # ISTFT
             zs = fb.istft(Zs, hop_size=hop)
@@ -208,10 +205,15 @@ for bag_speech, g in list_info.list_bag_target:
             stft_voice.extend(Ts[0, idx_start_spec:idx_end_spec])
             stft_noisy.extend(Ys[0, idx_start_spec:idx_end_spec])
 
+        # Write .wav for future analysis
+        signal_filter, signal_voice, signal_noisy = np.array(signal_filter), np.array(signal_voice), np.array(signal_noisy)
+        io.write(signal_filter, f'{path_out}result.wav', sf)
+        io.write(signal_voice, f'{path_out}voice.wav', sf)
+        io.write(signal_noisy, f'{path_out}noise.wav', sf)
 
         # Convert list to numpy array
         list_metrics = np.array(list_metrics)
-        signal_filter, signal_voice, signal_noisy = np.array(signal_filter), np.array(signal_voice), np.array(signal_noisy)
+
 
         # Spectrogram
         stft_filter = fb.stft(signal_filter[None,...], frame_size=frame_size, hop_size=hop)
@@ -267,11 +269,6 @@ for bag_speech, g in list_info.list_bag_target:
         # Append list_metrics to a list containing all tests
         list_all_metrics.extend(list_metrics)
 
-        # Write .wav for future analysis
-        io.write(signal_filter, f'{path_out}result.wav', sf)
-        io.write(signal_voice, f'{path_out}voice.wav', sf)
-        io.write(signal_noisy, f'{path_out}noise.wav', sf)
-
         # Logging means
         mean_metrics = np.round(np.mean(list_metrics, axis=0), 2)
         metrics = np.array([
@@ -309,7 +306,7 @@ logger.info(f'\nPARAMETERS')
 logger.info(f'Sampling rate: {sf} Hz')
 logger.info(f'overlap: {overlap}')
 logger.info(f'frame_size: {frame_size} ')
-logger.info(f'Hop length: {hop_length}')
+logger.info(f'Hop length: {hop}')
 logger.info(f'frame_sample_count: {frame_sample_count}')
 logger.info(f'Dictionnary size: {len(pca_dict)}\n')
 
