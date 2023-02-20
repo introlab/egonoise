@@ -14,8 +14,6 @@ bag_names = [
 for bag_name in bag_names:
     bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/video/{bag_name}.bag'
     wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/article/video/{bag_name}.wav'
-    # bag_path = f'/home/pierre-olivier/Documents/Data_Article/tagging/scream/2008/{bag_name}.bag'
-    # wav_path_out = f'/home/pierre-olivier/Documents/Data_Article/tagging/scream/2008/{bag_name}.wav'
     sf = 32000
 
     audio_frame_msg = AudioFrame()

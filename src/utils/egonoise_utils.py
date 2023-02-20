@@ -2,14 +2,9 @@
 
 import pickle
 import numpy as np
-from time import time
 
 from torchmetrics import SignalDistortionRatio as SDR
-from torch import Tensor
 
-import kissdsp.io as io
-import kissdsp.filterbank as fb
-import kissdsp.spatial as sp
 import kissdsp.beamformer as bf
 
 
@@ -27,7 +22,6 @@ def load_scm(data_base_path, idx, fs, m):
     brrl = np.conj(np.transpose(np.triu(brru, 1), axes=(0,2,1)))
     scmInv = brru+brrl
 
-
     return scmInv
 
 def load_pca(database_path):
@@ -36,22 +30,7 @@ def load_pca(database_path):
     file.close()
     pca_dict = np.load(f'{database_path}pca_dict.npy')
 
-
     return pca, pca_dict
-
-def irm(Ys, frames_noise, frames_speech, frame_size, hop):
-    Rs = fb.stft(frames_noise, frame_size=frame_size, hop_size=hop)
-    Ts = fb.stft(frames_speech, frame_size=frame_size, hop_size=hop)
-
-    Rs_sq = abs(Rs) ** 2
-    Ts_sq = abs(Ts) ** 2
-    mask_RRs = abs(Rs_sq / (Rs_sq + Ts_sq + 1e-7))
-    mask_TTs = abs(Ts_sq / (Rs_sq + Ts_sq + 1e-7))
-
-    RRs = sp.scm(Ys, mask_RRs)
-    TTs = sp.scm(Ys, mask_TTs)
-
-    return RRs, TTs
 
 def compute_mvdr(Ys, TTs, RRsInv):
     ref = 0

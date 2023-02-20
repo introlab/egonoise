@@ -42,10 +42,8 @@
         <param name="merge" value="false"/>
         <param name="gain" value="1.0"/>
         <param name="latency_us" value="$(arg latency_us)"/>
-
         <param if="$(eval arg('channel_count_in')==6)" name="device" value="alsa_input.usb-SEEED_ReSpeaker_4_Mic_Array__UAC1.0_-00.multichannel-input"/>
         <param if="$(eval arg('channel_count_in')==16)" name="device" value="alsa_input.usb-IntRoLab_16SoundsUSB_Audio_2.0-00.multichannel-input"/>
-
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_map">
             [front-left, front-right, rear-left, rear-right, front-center, lfe, side-left, side-right, aux0, aux1, aux2, aux3, aux4, aux5, aux6, aux7]
         </rosparam>
@@ -60,7 +58,6 @@
         <param name="frame_size" value="$(arg frame_size)"/>
         <param name="overlap" value="$(arg overlap)"/>
         <param name="overwrite_dict" value="$(arg overwrite_dict)"/>
-
         <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
     </node>
@@ -74,7 +71,6 @@
         <param name="channel_count" value="$(arg channel_count_in)"/>
         <param name="overlap" value="$(arg overlap)"/>
         <param name="hop_length" value="$(arg hop_length)"/>
-
         <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
     </node>
@@ -89,10 +85,8 @@
         <param name="publish" value="$(arg audio_listen)"/>
         <param name="overlap" value="$(arg overlap)"/>
         <param name="hop_length" value="$(arg hop_length)"/>
-
         <param name="bag_noise" value="$(arg bag_noise)"/>
         <param name="bag_speech" value="$(arg bag_speech)"/>
-
         <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
     </node>
@@ -106,8 +100,6 @@
         <param name="sampling_frequency" value="$(arg sampling_frequency)"/>
         <param name="frame_sample_count" value="$(arg frame_sample_count)"/>
         <param name="latency_us" value="$(arg latency_us)"/>
-
-        <!--remap from="audio_in" to="audio_out"/-->
     </node>
 
 </launch>
