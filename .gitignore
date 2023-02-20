@@ -7,5 +7,7 @@
 *.txt
 *.log
 *.pyc
+*.npy
+model
 
 !requirements.txt
