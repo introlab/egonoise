@@ -17,13 +17,13 @@
     <arg name="pulse_audio_sink" default="alsa_output.pci-0000_00_1f.3.analog-stereo"/>
     <arg name="use_echo_cancellation" default="false"/>
     <arg name="echo_cancellation_dest" default="false"/>
-    <arg name="dict_path" default="/home/ubuntu/catkin_ws/src/egonoise/src/database_3000/"/>
+    <arg name="dict_path" default="/home/ubuntu/catkin_ws/src/egonoise/src/database_9999/"/>
     <arg name="research" default="true"/>
     <arg name="channel_count_in" default="16"/>
     <arg name="channel_count_out" default="1"/>
     <arg name="sampling_frequency" default="32000"/>
     <arg name="frame_sample_count" default="16000"/>
-    <arg name="frame_size" default="2048"/>
+    <arg name="frame_size" default="1024"/>
     <arg name="format" default="signed_32"/>
     <arg name="overlap" default="3.1875"/>
     <arg name="hop_length" default="256"/>
@@ -57,7 +57,6 @@
         <param name="bag_name" value="$(arg bag_calibration)"/>
         <param name="frame_size" value="$(arg frame_size)"/>
         <param name="overlap" value="$(arg overlap)"/>
-        <param name="overwrite_dict" value="$(arg overwrite_dict)"/>
         <rosparam if="$(eval arg('channel_count_in')==6)" param="channel_keep">[1, 2, 3, 4]</rosparam>
         <rosparam if="$(eval arg('channel_count_in')==16)" param="channel_keep">[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</rosparam>
     </node>
