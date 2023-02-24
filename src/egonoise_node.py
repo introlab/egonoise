@@ -49,24 +49,27 @@ class EgoNoiseNode:
         self._last_window = frames[:, -int(self._overlap * self._frame_size):]
 
         n1 = time()
-        print(f'Time: {n1-n}')
+        print(f'\nTime1: {n1-n}')
 
         # STFT and SCM
         Ys = fb.stft(frames, frame_size=self._frame_size, hop_size=self._hop_length)
 
         n2 = time()
-        print(f'Time: {n2-n1}')
+        print(f'Time2: {n2-n1}')
 
         YYs = sp.scm(sp.xspec(Ys))
 
         n3 = time()
-        print(f'Time: {n2-n3}')
+        print(f'Time3: {n3-n2}')
 
         # PCA
         val = compute_pca(YYs, self._pca)
         diff = np.sum(abs(val - self._pca_dict), axis=1)
         idx = np.argmin(diff)
         RRsInv = load_scm(self._dict_path, idx, self._frame_size, len(frames))
+
+        n4 = time()
+        print(f'Time4: {n4 - n3}')
 
         # MVDR
         Zs, ws = compute_mvdr(Ys, YYs, RRsInv)
@@ -83,9 +86,9 @@ class EgoNoiseNode:
         self._audio_frame_msg.frame_sample_count = msg.frame_sample_count
         self._audio_frame_msg.data = data
 
-        self._audio_pub.publish(self._audio_frame_msg)
-        n1 = time()
-        print(f'Time: {n1-n}')
+
+        n5 = time()
+        print(f'Time5: {n5 - n4}')
 
     def run(self):
         rospy.spin()
