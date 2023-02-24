@@ -6,8 +6,8 @@ hop = 256
 sf = 32000
 frame_sample_count = 16000
 
-local = 'video'
-event = ''
+local = 1004
+event = 'SPEECH'
 
 bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/{local}/'
 dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database_{local}/'
@@ -112,7 +112,7 @@ elif event == 'SCREAM':
         ['SCREAM15', 1],
     ]
 elif event=='SPEECH':
-    gain = 0.7
+    gain = 0.8
     list_bag_target = [
     ['237-126133-0000', 0.8],
     ['237-126133-0001', 0.8],

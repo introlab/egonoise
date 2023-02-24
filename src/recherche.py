@@ -4,20 +4,26 @@ import rosbag
 import os
 import logging
 
+import matplotlib
 import matplotlib.pyplot as plt
 
 from datetime import datetime
+from time import time
+from torch import Tensor
 
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames
 from audio_utils.msg import AudioFrame
 from utils.egonoise_utils import *
+from utils import list_info
 
 import kissdsp.io as io
 import kissdsp.filterbank as fb
 import kissdsp.spatial as sp
 import kissdsp.beamformer as bf
 
-from utils import list_info
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 # Create logger
 logger = logging.getLogger('Recherche')
@@ -230,6 +236,7 @@ for bag_speech, g in list_info.list_bag_target:
                             hspace=0.4)
 
         vmin = -25
+        csfont = {'fontname': 'Times New Roman'}
 
         max_val = len(signal_filter) / sf
         max_freq = sf/2/1000/2
@@ -258,7 +265,7 @@ for bag_speech, g in list_info.list_bag_target:
                              cmap='viridis',
                              extent=[0, max_val, 0, max_freq],
                              vmin = vmin)
-        ax.set_title('Music only spectrogram')
+        ax.set_title('Speech only spectrogram')
         ax.set_ylabel('Frequency [kHz]')
         ax.set_yticks([0, 4, 8])
 
