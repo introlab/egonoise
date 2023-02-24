@@ -3,8 +3,6 @@
 import pickle
 import numpy as np
 
-from torchmetrics import SignalDistortionRatio as SDR
-
 import kissdsp.beamformer as bf
 
 
@@ -39,15 +37,6 @@ def compute_mvdr(Ys, TTs, RRsInv):
     Zs = bf.beam(Ys, ws)  # Perform beamforming
     return Zs, ws
 
-def snr(spec_speech, spec_noise):
-    mean_speech = np.mean(np.abs(spec_speech) ** 2)
-    mean_noise = np.mean(np.abs(spec_noise) ** 2)
-
-    return 10 * np.log10(mean_speech / mean_noise)
-
-def sdr(pred, target):
-    c = SDR(filter_length=512)
-    return c(pred, target)
 
 def compute_pca(scm, pca):
     arr = np.array([scm.real, scm.imag])
