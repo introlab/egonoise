@@ -6,10 +6,10 @@ hop = 256
 sf = 32000
 frame_sample_count = 16000
 
-local = 9999
-event = 'SPEECH'
+local = 3000
+event = 'ALARM'
 
-bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/{1004}/'
+bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/{local}/'
 dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database_{local}/'
 
 if local == 2008:

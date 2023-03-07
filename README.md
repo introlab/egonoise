@@ -4,6 +4,8 @@ The goal of this project is to create a system able to reduce easily the egonois
 
 Author(s): Pierre-Olivier Lagacé
 
+**  This Repo is in progress
+
 ## Installation
 
 ### ROS Noetic on Ubuntu 20.04
@@ -33,34 +35,43 @@ export PYTHONPATH="${PYTHONPATH}:"/<kissdsp_path>/kissdsp"
 ### ROS Libraries
 1. Install https://github.com/introlab/audio_utils in your catkin_ws/src
 
-## Scripts
-TODO
+## Custom Python library
+1. Install https://github.com/FrancoisGrondin/kissdsp
 
 ### calibration_run.py
-Expication:
+Expication: This node allow to train de database with a rosbag using the command `roslaunch egonoise egonoise.launch calibration_run:=true`.
 Parameters:
-Topics (Sub and Pub)
+ - input_format
+ - sampling_frequency
+ - database_path
+ - bag_name
+ - frame_size
+ - overlap
+ - channel_keep
+ - device
 
-### egonoise_run.py
-Expication:
+### calibration_node.py TODO
+Expication: This node allow to train de database with live input using the command `roslaunch egonoise egonoise.launch calibration_node:=true`.
 Parameters:
+ - ...
 Topics (Sub and Pub)
+ - audio_out
+
 
 ### egonoise_node.py
-Expication:
+Expication: This node allow to use the framework to filtered the signal using the command `roslaunch egonoise egonoise.launch egonoise_node:=true`
 Parameters:
+ - input_format
+ - output_format
+ - dict_path
+ - frame_size
+ - channel_count
+ - overlap
+ - hop_length
+ - channel_keep
 Topics (Sub and Pub)
-
-### bag2wav.py
-Expication:
-Parameters:
-Topics (Sub and Pub)
-
-### bag_merge.py
-Expication:
-Parameters:
-Topics (Sub and Pub)
-
+ - audio_out
+ - audio_in
 
 ## Setup RaspberryPi
 ### Info
