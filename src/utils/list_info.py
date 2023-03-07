@@ -6,8 +6,8 @@ hop = 256
 sf = 32000
 frame_sample_count = 16000
 
-local = 'video'
-event = ''
+local = 3000
+event = 'ALARM'
 
 bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/{local}/'
 dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database_{local}/'
@@ -21,6 +21,12 @@ if local == 2008:
 elif local == 1004:
     list_bag_noise = ['AL3', 'AL4', 'AL5', 'AL12', 'AL14', 'AL22', 'AL23', 'AL25']
     list_bag_database = ['AL1', 'AL2', 'AL11', 'AL15', 'AL21', 'AL24']
+    bg_intensity = 1000
+    gain = 1.0
+
+elif local == 9999:
+    list_bag_noise = ['AL3', 'AL4', 'AL5', 'AL12', 'AL14', 'AL22', 'AL23', 'AL25']
+    list_bag_database = ['AL1']#, 'AL2', 'AL11', 'AL15', 'AL21', 'AL24']
     bg_intensity = 1000
     gain = 1.0
 
@@ -112,7 +118,7 @@ elif event == 'SCREAM':
         ['SCREAM15', 1],
     ]
 elif event=='SPEECH':
-    gain = 0.7
+    gain = 0.8
     list_bag_target = [
     ['237-126133-0000', 0.8],
     ['237-126133-0001', 0.8],

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
+from time import time
 
 from audio_utils.msg import AudioFrame
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
@@ -25,42 +26,56 @@ class EgoNoiseNode:
 
         self._audio_frame_msg = AudioFrame()
 
-        self.pca, self.pca_dict = load_pca(self._dict_path)
+        self._pca, self._pca_dict = load_pca(self._dict_path)
 
         self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
         self._audio_sub = rospy.Subscriber('audio_out', AudioFrame, self._audio_cb, queue_size=10)
 
-        self.last_window = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
+        self._last_window = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
 
-        self.istft_cut = int((self._overlap / 2) * self._frame_size / self._hop_length)
+        self._istft_cut =  int(self._overlap / 2 * self._frame_size)
 
 
     def _audio_cb(self, msg):
+        n = time()
         if msg.format != self._input_format:
             rospy.logerr('Invalid input format (msg.format={}, param.input_format={})'.format(msg.format, self._input_format))
             return
 
         frames = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg.channel_count, msg.data))[self._channel_keep]
 
-        frames = np.hstack((self.last_window, frames))
+        frames = np.hstack((self._last_window, frames))
 
-        self.last_window = frames[:, -int(self._overlap * self._frame_size):]
+        self._last_window = frames[:, -int(self._overlap * self._frame_size):]
+
+        n1 = time()
+        print(f'\nTime1: {n1-n}')
 
         # STFT and SCM
         Ys = fb.stft(frames, frame_size=self._frame_size, hop_size=self._hop_length)
+
+        n2 = time()
+        print(f'Time2: {n2-n1}')
+
         YYs = sp.scm(sp.xspec(Ys))
 
+        n3 = time()
+        print(f'Time3: {n3-n2}')
+
         # PCA
-        val = compute_pca(YYs, self.pca)
-        diff = np.sum(abs(val - self.pca_dict), axis=1)
+        val = compute_pca(YYs, self._pca)
+        diff = np.sum(abs(val - self._pca_dict), axis=1)
         idx = np.argmin(diff)
         RRsInv = load_scm(self._dict_path, idx, self._frame_size, len(frames))
+
+        n4 = time()
+        print(f'Time4: {n4 - n3}')
 
         # MVDR
         Zs, ws = compute_mvdr(Ys, YYs, RRsInv)
 
         # ISTFT
-        zs = fb.istft(Zs, hop_size=self._hop_length)[:, -self.istft_cut:self.istft_cut]
+        zs = fb.istft(Zs, hop_size=self._hop_length)[:, self._istft_cut:-self._istft_cut]
 
         data = convert_numpy_frames_to_audio_data(self._output_format_information, zs)
 
@@ -71,7 +86,9 @@ class EgoNoiseNode:
         self._audio_frame_msg.frame_sample_count = msg.frame_sample_count
         self._audio_frame_msg.data = data
 
-        self._audio_pub.publish(self._audio_frame_msg)
+
+        n5 = time()
+        print(f'Time5: {n5 - n4}')
 
     def run(self):
         rospy.spin()
