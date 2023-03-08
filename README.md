@@ -37,6 +37,7 @@ export PYTHONPATH="${PYTHONPATH}:"/<kissdsp_path>/kissdsp"
 
 ### calibration_run.py
 Expication: This node allow to train de database with a rosbag using the command `roslaunch egonoise egonoise.launch calibration_run:=true`.
+
 Parameters:
  - input_format
  - database_path
@@ -57,11 +58,13 @@ Parameters:
  - overlap
  - hop_length
  - calibration_duration
+
 Topics (Sub and Pub)
  - audio_out
 
 ### egonoise_node.py
 Expication: This node allow to use the framework to filtered the signal from subscriber using the command `roslaunch egonoise egonoise.launch egonoise_node:=true`
+
 Parameters:
  - input_format
  - output_format
@@ -70,12 +73,14 @@ Parameters:
  - channel_count
  - overlap
  - hop_length
+
 Topics (Sub and Pub)
  - Sub: audio_out
  - Pub: audio_in
 
 ### egonoise_run.py
 Expication: This node allow to use the framework to filtered the signal from rosbag using the command `roslaunch egonoise egonoise.launch egonoise_run:=true`
+
 Parameters:
  - input_format
  - output_format
@@ -84,6 +89,7 @@ Parameters:
  - channel_count
  - overlap
  - hop_length
+
 Topics (Sub and Pub)
  - Pub: audio_in
 
