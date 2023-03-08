@@ -6,7 +6,7 @@ hop = 256
 sf = 32000
 frame_sample_count = 16000
 
-local = 3000
+local = 9999
 event = 'ALARM'
 
 bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/{local}/'

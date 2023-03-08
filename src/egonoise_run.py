@@ -16,12 +16,11 @@ class EgoNoiseRun:
     def __init__(self):
         self._input_format = rospy.get_param('~input_format', '')
         self._output_format = rospy.get_param('~output_format', '')
-        self._dict_path = rospy.get_param('~dict_path', '')
+        self._database_path = rospy.get_param('~database_path', '')
         self._frame_size = rospy.get_param('~frame_size', '')
-        self._channel_keep = rospy.get_param('~channel_keep', '')
+        self._channel_count = rospy.get_param('~channel_count', '')
         self._bag_noise = rospy.get_param('~bag_noise', '')
         self._bag_speech = rospy.get_param('~bag_speech', '')
-        self._publish = rospy.get_param('~publish', '')
         self._overlap = rospy.get_param('~overlap', '')
         self._hop_length = rospy.get_param('~hop_length', '')
 
@@ -31,19 +30,19 @@ class EgoNoiseRun:
         self._audio_frame_msg = AudioFrame()
         self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
 
-        self.pca, self.pca_dict = load_pca(self._dict_path)
+        self.pca, self.pca_dict = load_pca(self._database_path)
 
-        self.last_window = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
-        self.last_window_s = np.zeros((len(self._channel_keep), int(self._overlap * self._frame_size)))
-        self.last_window_n = np.zeros((len(self._channel_keep), int(self._overlap*self._frame_size)))
+        self.last_window = np.zeros((self._channel_count, int(self._overlap*self._frame_size)))
+        self.last_window_s = np.zeros((self._channel_count, int(self._overlap * self._frame_size)))
+        self.last_window_n = np.zeros((self._channel_count, int(self._overlap*self._frame_size)))
 
         self.istft_cut = int((self._overlap / 2) * self._frame_size / self._hop_length)
 
 
     def run(self):
         for (_, msg_speech, _), (_, msg_noise, _) in zip(rosbag.Bag(self._bag_speech).read_messages(), rosbag.Bag(self._bag_noise).read_messages()):
-            frames_speech = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_speech.channel_count, msg_speech.data))[self._channel_keep]
-            frames_noise = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_noise.channel_count, msg_noise.data))[self._channel_keep]
+            frames_speech = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_speech.channel_count, msg_speech.data))
+            frames_noise = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg_noise.channel_count, msg_noise.data))
 
             frames = frames_noise + frames_speech
             frames = np.hstack((self.last_window, frames))
@@ -63,13 +62,13 @@ class EgoNoiseRun:
             val = compute_pca(YYs, self.pca)
             diff = np.sum(abs(val - self.pca_dict), axis=1)
             idx = np.argmin(diff)
-            RRsInv = load_scm(self._dict_path, idx, self._frame_size, len(frames))
+            RRsInv = load_scm(self._database_path, idx, self._frame_size, len(frames))
 
             # MVDR
             Zs, ws = compute_mvdr(Ys, YYs, RRsInv)
 
             # ISTFT
-            zs = fb.istft(Zs, hop_size=self._hop_length)[:, -self.istft_cut:self.istft_cut]
+            zs = fb.istft(Zs, hop_size=self._hop_length)[:, self.istft_cut:-self.istft_cut]
 
             data = convert_numpy_frames_to_audio_data(self._output_format_information, zs)
 
@@ -84,7 +83,7 @@ class EgoNoiseRun:
 
 
 def main():
-    rospy.init_node('egonoise_run', log_level=rospy.DEBUG)
+    rospy.init_node('egonoise_run', log_level=rospy.INFO)
     egonoise_run = EgoNoiseRun()
     egonoise_run.run()
 

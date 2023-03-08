@@ -35,43 +35,57 @@ export PYTHONPATH="${PYTHONPATH}:"/<kissdsp_path>/kissdsp"
 ### ROS Libraries
 1. Install https://github.com/introlab/audio_utils in your catkin_ws/src
 
-## Custom Python library
-1. Install https://github.com/FrancoisGrondin/kissdsp
-
 ### calibration_run.py
 Expication: This node allow to train de database with a rosbag using the command `roslaunch egonoise egonoise.launch calibration_run:=true`.
 Parameters:
  - input_format
- - sampling_frequency
  - database_path
  - bag_name
  - frame_size
+ - hop_length
  - overlap
- - channel_keep
- - device
 
-### calibration_node.py TODO
+### calibration_node.py 
 Expication: This node allow to train de database with live input using the command `roslaunch egonoise egonoise.launch calibration_node:=true`.
 Parameters:
- - ...
-Topics (Sub and Pub)
- - audio_out
-
-
-### egonoise_node.py
-Expication: This node allow to use the framework to filtered the signal using the command `roslaunch egonoise egonoise.launch egonoise_node:=true`
-Parameters:
  - input_format
- - output_format
- - dict_path
+ - database_path
+ - sampling_frequency
+ - frame_sample_count
  - frame_size
  - channel_count
  - overlap
  - hop_length
- - channel_keep
+ - calibration_duration
 Topics (Sub and Pub)
  - audio_out
- - audio_in
+
+### egonoise_node.py
+Expication: This node allow to use the framework to filtered the signal from subscriber using the command `roslaunch egonoise egonoise.launch egonoise_node:=true`
+Parameters:
+ - input_format
+ - output_format
+ - database_path
+ - frame_size
+ - channel_count
+ - overlap
+ - hop_length
+Topics (Sub and Pub)
+ - Sub: audio_out
+ - Pub: audio_in
+
+### egonoise_run.py
+Expication: This node allow to use the framework to filtered the signal from rosbag using the command `roslaunch egonoise egonoise.launch egonoise_run:=true`
+Parameters:
+ - input_format
+ - output_format
+ - database_path
+ - frame_size
+ - channel_count
+ - overlap
+ - hop_length
+Topics (Sub and Pub)
+ - Pub: audio_in
 
 ## Setup RaspberryPi
 ### Info
