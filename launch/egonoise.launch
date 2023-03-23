@@ -13,18 +13,18 @@
     <arg name="device" default="alsa_input.usb-IntRoLab_16SoundsUSB_Audio_2.0-00.multichannel-input"/>
     <arg name="use_echo_cancellation" default="false"/>
     <arg name="echo_cancellation_dest" default="false"/>
-    <arg name="database_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database_9999/"/>
+    <arg name="database_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"/>
     <arg name="research" default="true"/>
     <arg name="channel_count_in" default="16"/>
     <arg name="channel_count_out" default="1"/>
     <arg name="sampling_frequency" default="32000"/>
-    <arg name="frame_sample_count" default="16000"/>
-    <arg name="frame_size" default="1024"/>
+    <arg name="frame_sample_count" default="24000"/>
+    <arg name="frame_size" default="2048"/>
     <arg name="format" default="signed_32"/>
     <arg name="overlap" default="3.1875"/>
     <arg name="hop_length" default="256"/>
     <arg name="latency_us" default="40000"/>
-    <arg name="calibration_duration" default="10"/>
+    <arg name="calibration_duration" default="15"/>
     <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/237-126133-0000.bag"/>
     <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/AL12.bag"/>
     <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/article/2008/"/>
@@ -56,6 +56,7 @@
         <param name="frame_size" value="$(arg frame_size)"/>
         <param name="hop_length" value="$(arg hop_length)"/>
         <param name="overlap" value="$(arg overlap)"/>
+        <param name="research" value="$(arg research)"/>
     </node>
 
     <!-- CALIBRATION NODE -->

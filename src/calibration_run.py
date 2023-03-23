@@ -5,7 +5,7 @@ import shutil
 
 from audio_utils import get_format_information
 from utils.calibration_utils import calibration_run
-from utils import list_info
+from utils import list_info2 as list_info
 
 
 class CalibrationRun:

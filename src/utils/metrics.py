@@ -10,5 +10,5 @@ def snr(spec_speech, spec_noise):
     return 10 * np.log10(mean_speech / mean_noise)
 
 def sdr(pred, target):
-    c = SDR(filter_length=512)
+    c = SDR()
     return c(pred, target)

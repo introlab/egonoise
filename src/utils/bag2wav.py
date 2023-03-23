@@ -8,12 +8,12 @@ from audio_utils.msg import AudioFrame
 import kissdsp.io as io
 
 bag_names = [
-    'CALIB_test'
+    'AL1'
 ]
 
 for bag_name in bag_names:
-    bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/video/{bag_name}.bag'
-    wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/article/video/{bag_name}.wav'
+    bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004-025/{bag_name}.bag'
+    wav_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004-025/{bag_name}.wav'
     sf = 32000
 
     audio_frame_msg = AudioFrame()

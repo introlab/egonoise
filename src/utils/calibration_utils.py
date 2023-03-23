@@ -15,7 +15,8 @@ import kissdsp.io as io
 import kissdsp.filterbank as fb
 import kissdsp.spatial as sp
 
-from utils import list_info
+from utils import list_info2 as list_info
+
 
 
 def save_scm(wav, path, frame_size, hop_length):
