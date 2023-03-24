@@ -31,9 +31,7 @@ def load_pca(database_path):
     return pca, pca_dict
 
 def compute_mvdr(Ys, TTs, RRsInv):
-    ref = 0
-
-    ws = bf.mvdr(TTs, RRsInv, ref) # Compute mvdr weights
+    ws = bf.mvdr(TTs, RRsInv) # Compute mvdr weights
     Zs = bf.beam(Ys, ws)  # Perform beamforming
     return Zs, ws
 

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
-import shutil
 
 from audio_utils import get_format_information
 from utils.calibration_utils import calibration_run
-from utils import list_info
+from utils import list_info2 as list_info
 
 
 class CalibrationRun:
@@ -16,11 +15,13 @@ class CalibrationRun:
         self._frame_size = rospy.get_param('~frame_size', '')
         self._hop_length = rospy.get_param('~hop_length', '')
         self._overlap = rospy.get_param('~overlap', '')
+        self._calibration_step = rospy.get_param('~calibration_step', '')
 
         self._input_format_information = get_format_information(self._input_format)
 
     def run(self):
-        calibration_run(self._bag_path, self._frame_size, self._hop_length, self._overlap, self._input_format_information, self._database_path)
+        calibration_run(self._bag_path, self._frame_size, self._hop_length, self._overlap,
+                        self._input_format_information, self._database_path, self._calibration_step)
 
 
 def main():

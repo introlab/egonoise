@@ -15,7 +15,8 @@ import kissdsp.io as io
 import kissdsp.filterbank as fb
 import kissdsp.spatial as sp
 
-from utils import list_info
+from utils import list_info2 as list_info
+
 
 
 def save_scm(wav, path, frame_size, hop_length):
@@ -56,7 +57,7 @@ def reset_database(database_path):
     except OSError as e:
         print("Error: %s : %s" % (database_path, e.strerror))
 
-def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_information, database_path):
+def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_information, database_path, step=2000):
     tfs = []
     reset_database(database_path)
 
@@ -74,7 +75,6 @@ def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_info
         len_window = msg.frame_sample_count + int(overlap * frame_size)
 
         i = 0
-        step = 2000
         while (i+len_window)<frames_all.shape[1]:
             window = frames_all[:, i:(i+len_window)]
             tf = save_scm(window, f'{database_path}{idx}', frame_size, hop_length)
