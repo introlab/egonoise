@@ -4,9 +4,9 @@ overlap = 3.1875
 frame_size = 2048
 hop = 256
 sf = 32000
-frame_sample_count = 24000
+frame_sample_count = 16000
 
-bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004-075/'
+bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004/'
 dict_path = f'/home/pierre-olivier/catkin_ws/src/egonoise/src/database/'
 
 list_bag_noise = ['AL3', 'AL4', 'AL5', 'AL12', 'AL14', 'AL22', 'AL23', 'AL25']

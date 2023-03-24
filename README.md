@@ -4,8 +4,6 @@ The goal of this project is to create a system able to reduce easily the egonois
 
 Author(s): Pierre-Olivier Lagacé
 
-**  This Repo is in progress
-
 ## Installation
 
 ### ROS Noetic on Ubuntu 20.04
@@ -26,11 +24,7 @@ source ~/catkin_ws/devel/setup.bash
 ```
 pip3 install -r requirement.txt
 ```
-4. Clone the repo https://github.com/FrancoisGrondin/kissdsp on your computer (not in the catkin_ws) and test it.
-5. Add this to the end of your `bashrc`
-```
-export PYTHONPATH="${PYTHONPATH}:"/<kissdsp_path>/kissdsp"
-```
+4. Install kissdsp from https://github.com/FrancoisGrondin/kissdsp on your computer (not in the catkin_ws).
 
 ### ROS Libraries
 1. Install https://github.com/introlab/audio_utils in your catkin_ws/src
@@ -45,6 +39,7 @@ Parameters:
  - frame_size
  - hop_length
  - overlap
+ - step
 
 ### calibration_node.py 
 Expication: This node allow to train de database with live input using the command `roslaunch egonoise egonoise.launch calibration_node:=true`.
@@ -58,9 +53,10 @@ Parameters:
  - overlap
  - hop_length
  - calibration_duration
+ - step
 
 Topics (Sub and Pub)
- - audio_out
+ - Sub: audio_out
 
 ### egonoise_node.py
 Expication: This node allow to use the framework to filtered the signal from subscriber using the command `roslaunch egonoise egonoise.launch egonoise_node:=true`
@@ -111,9 +107,9 @@ password: egonoise
 - Test a python script to make a test record
 8. Install Ros Noetic
 - Use `catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3` for the first catkin_make
-9 Install KissDsp
-10. Install this project in catkin_ws/src/
-11. Install audio_utils
+9. Install KissDsp
+10. Install audio_utils
+11. Install this project in catkin_ws/src/
 12. Test with: `roslaunch egonoise egonoise.launch audio_capture:=true` with the good parameter.
 13. Follow the guide https://husarion.com/tutorials/ros-tutorials/5-running-ros-on-multiple-machines/ if you want to record the rosbag on another machine.
 

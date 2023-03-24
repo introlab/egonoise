@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-import shutil
 
 from audio_utils import get_format_information
 from utils.calibration_utils import calibration_run

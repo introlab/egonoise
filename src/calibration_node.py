@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
-from time import time
 
 from audio_utils.msg import AudioFrame
-from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
+from audio_utils import get_format_information, convert_audio_data_to_numpy_frames
 from utils.calibration_utils import *
-
-import kissdsp.filterbank as fb
-import kissdsp.spatial as sp
 
 
 class CalibrationNode:
