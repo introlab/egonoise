@@ -22,18 +22,18 @@ class CalibrationNode:
         self._overlap = rospy.get_param('~overlap', '')
         self._hop_length = rospy.get_param('~hop_length', '')
         self._calibration_duration = rospy.get_param('~calibration_duration', '')
+        self._calibration_step = rospy.get_param('~calibration_step', '')
 
         self._input_format_information = get_format_information(self._input_format)
 
         self._accumulation_frame = None
         self._len_window = self._frame_size + int(self._overlap * self._frame_size)
-        self._step = 2000
         self._first = True
 
         self._idx = 0
         self._tfs  = []
 
-        self._nb_calibration_examples = int(self._calibration_duration*self._sampling_frequency/self._step)
+        self._nb_calibration_examples = int(self._calibration_duration*self._sampling_frequency/self._calibration_step)
         print(self._nb_calibration_examples)
 
         reset_database(self._database_path)
@@ -50,8 +50,8 @@ class CalibrationNode:
             if not self._first:
                 self._accumulation_frame = np.concatenate((self._accumulation_frame, frames), axis=1)
 
-                while (self._idx*self._step+self._len_window)<self._accumulation_frame.shape[1]:
-                    window = self._accumulation_frame[:, self._idx*self._step:(self._idx*self._step + self._len_window)]
+                while (self._idx*self._calibration_step+self._len_window)<self._accumulation_frame.shape[1]:
+                    window = self._accumulation_frame[:, self._idx*self._calibration_step:(self._idx*self._calibration_step + self._len_window)]
                     tf = save_scm(window, f'{self._database_path}{self._idx}', self._frame_size, self._hop_length)
                     self._tfs.append(tf)
                     self._idx += 1

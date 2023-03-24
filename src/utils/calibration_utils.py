@@ -57,7 +57,7 @@ def reset_database(database_path):
     except OSError as e:
         print("Error: %s : %s" % (database_path, e.strerror))
 
-def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_information, database_path):
+def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_information, database_path, step=2000):
     tfs = []
     reset_database(database_path)
 
@@ -75,7 +75,6 @@ def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_info
         len_window = msg.frame_sample_count + int(overlap * frame_size)
 
         i = 0
-        step = 2000
         while (i+len_window)<frames_all.shape[1]:
             window = frames_all[:, i:(i+len_window)]
             tf = save_scm(window, f'{database_path}{idx}', frame_size, hop_length)
