@@ -9,6 +9,8 @@ from utils.egonoise_utils import *
 import kissdsp.filterbank as fb
 import kissdsp.spatial as sp
 
+from time import time
+
 
 class EgoNoiseNode:
     def __init__(self):
@@ -32,9 +34,8 @@ class EgoNoiseNode:
 
 
         self._frames = np.zeros((self._channel_count, self._frame_size))
-        self._stft = []
-
-        self._istft_cut =  int(self._overlap / 2 * self._frame_size)
+        self._YYs = None
+        self._list_YYs = []
 
 
     def _audio_cb(self, msg):
@@ -42,37 +43,40 @@ class EgoNoiseNode:
             rospy.logerr('Invalid input format (msg.format={}, param.input_format={})'.format(msg.format, self._input_format))
             return
 
+        time0 = time()
+
         frames = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg.channel_count, msg.data))
 
-        self._frames[:-self._hop_length] = self._frames[self._hop_length:]
-        self._frames[self._hop_length:] = frames
+        self._frames[:, :-self._hop_length] = self._frames[:, self._hop_length:]
+        self._frames[:, -self._hop_length:] = frames
 
-        Ys = fb.stft(frames, frame_size=self._frame_size, hop_size=self._hop_length)
+        Ys = fb.stft(self._frames, frame_size=self._frame_size, hop_size=self._hop_length)
+        YYs = sp.scm(sp.xspec(Ys))
 
-        self._stft.pop(0)
-        self._stft.append(Ys)
+        if len(self._list_YYs)==0:
+            self._YYs = YYs
+            self._list_YYs.append(YYs)
+        elif len(self._list_YYs)<10:
+            self._YYs += YYs
+            self._list_YYs.append(YYs)
+        else:
+            self._YYs += YYs
+            self._YYs -= self._list_YYs.pop(0)
+            self._list_YYs.append(YYs)
 
+        YYsInv = np.linalg.inv(YYs)
 
-
-        # frames = np.hstack((self._last_window, frames))
-        #
-        # self._last_window = frames[:, -int(self._overlap * self._frame_size):]
-
-        # # STFT and SCM
-        # Ys = fb.stft(frames, frame_size=self._frame_size, hop_size=self._hop_length)
-        # YYs = sp.scm(sp.xspec(Ys))
-        #
         # # PCA
         # val = compute_pca(YYs, self._pca)
         # diff = np.sum(abs(val - self._pca_dict), axis=1)
         # idx = np.argmin(diff)
         # RRsInv = load_scm(self._database_path, idx, self._frame_size, len(frames))
         #
-        # # MVDR
-        # Zs, ws = compute_mvdr(Ys, YYs, RRsInv)
+        # MVDR
+        Zs, ws = compute_mvdr(Ys, YYs, YYsInv)
         #
         # # ISTFT
-        # zs = fb.istft(Zs, hop_size=self._hop_length)[:, self._istft_cut:-self._istft_cut]
+        zs = fb.istft(Zs, hop_size=self._hop_length)
         #
         # data = convert_numpy_frames_to_audio_data(self._output_format_information, zs)
         #
@@ -84,6 +88,8 @@ class EgoNoiseNode:
         # self._audio_frame_msg.data = data
         #
         # self._audio_pub.publish(self._audio_frame_msg)
+
+        print(time()-time0)
 
     def run(self):
         rospy.spin()
