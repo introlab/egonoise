@@ -30,6 +30,8 @@ class EgoNoiseNode:
         self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
         self._audio_sub = rospy.Subscriber('audio_out', AudioFrame, self._audio_cb, queue_size=10)
 
+
+        self._frames = np.zeros((self._channel_count, self._frame_size))
         self._stft = []
 
         self._istft_cut =  int(self._overlap / 2 * self._frame_size)
@@ -42,7 +44,13 @@ class EgoNoiseNode:
 
         frames = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg.channel_count, msg.data))
 
+        self._frames[:-self._hop_length] = self._frames[self._hop_length:]
+        self._frames[self._hop_length:] = frames
+
         Ys = fb.stft(frames, frame_size=self._frame_size, hop_size=self._hop_length)
+
+        self._stft.pop(0)
+        self._stft.append(Ys)
 
 
 

@@ -15,9 +15,6 @@ import kissdsp.io as io
 import kissdsp.filterbank as fb
 import kissdsp.spatial as sp
 
-from utils import list_info2 as list_info
-
-
 
 def save_scm(wav, path, frame_size, hop_length):
     Rs = fb.stft(wav, frame_size=frame_size, hop_size=hop_length)
@@ -62,25 +59,22 @@ def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_info
     reset_database(database_path)
 
     idx = 0
-    for bag in list_info.list_bag_database:
-        bag_path_ = f'{bag_path}{bag}.bag'
+    frames_all  = []
+    for _, msg, _ in rosbag.Bag(bag_path).read_messages():
+        frames = convert_audio_data_to_numpy_frames(input_format_information, msg.channel_count, msg.data)
+        frames = np.array(frames)
+        frames_all.append(frames)
 
-        frames_all  = []
-        for _, msg, _ in rosbag.Bag(bag_path_).read_messages():
-            frames = convert_audio_data_to_numpy_frames(input_format_information, msg.channel_count, msg.data)
-            frames = np.array(frames)
-            frames_all.append(frames)
+    frames_all = np.hstack(frames_all)
+    len_window = msg.frame_sample_count + int(overlap * frame_size)
 
-        frames_all = np.hstack(frames_all)
-        len_window = msg.frame_sample_count + int(overlap * frame_size)
-
-        i = 0
-        while (i+len_window)<frames_all.shape[1]:
-            window = frames_all[:, i:(i+len_window)]
-            tf = save_scm(window, f'{database_path}{idx}', frame_size, hop_length)
-            tfs.append(tf)
-            i = i+step
-            idx = idx+1
+    i = 0
+    while (i+len_window)<frames_all.shape[1]:
+        window = frames_all[:, i:(i+len_window)]
+        tf = save_scm(window, f'{database_path}{idx}', frame_size, hop_length)
+        tfs.append(tf)
+        i = i+step
+        idx = idx+1
 
     tfs = np.array(tfs)
     save_pca(tfs, database_path)

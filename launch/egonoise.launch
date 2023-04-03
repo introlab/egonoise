@@ -16,18 +16,18 @@
     <arg name="channel_count_in" default="16"/>
     <arg name="channel_count_out" default="1"/>
     <arg name="sampling_frequency" default="32000"/>
-    <arg name="frame_sample_count" default="16000"/>
-    <arg name="frame_size" default="2048"/>
+    <arg name="frame_sample_count" default="256"/>
+    <arg name="frame_size" default="1024"/>
     <arg name="format" default="signed_32"/>
     <arg name="overlap" default="3.1875"/>
     <arg name="hop_length" default="256"/>
-    <arg name="calibration_step" default="2000"/>
+    <arg name="calibration_step" default="8000"/>
     <arg name="latency_us" default="40000"/>
     <arg name="calibration_duration" default="90"/>
     <arg name="database_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"/>
     <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/237-126133-0000.bag"/>
     <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/AL12.bag"/>
-    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/article/2008/"/>
+    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/AL12.bag"/>
 
     <!-- Audio utils -->
     <arg name="pulse_audio_sink" default="alsa_output.pci-0000_00_1f.3.analog-stereo"/>
