@@ -67,7 +67,7 @@ def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_info
 
     frames_all = np.hstack(frames_all)
     n_data = 6
-    len_window = overlap*frame_size+n_data*hop_length
+    len_window = int(overlap*frame_size+n_data*hop_length)
 
     i = 0
     while (i+len_window)<frames_all.shape[1]:

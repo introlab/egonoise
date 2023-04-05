@@ -20,7 +20,7 @@ bag_names = [
 ]
 
 for bag_name in bag_names:
-    bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004/{bag_name}.bag'
+    bag_path = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004-008/{bag_name}.bag'
     bag_path_out = f'/home/pierre-olivier/catkin_ws/src/bag/article/1004-008/{bag_name}.bag'
     sf = 32000
     newL = 0.008
