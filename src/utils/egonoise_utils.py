@@ -5,6 +5,8 @@ import numpy as np
 
 import kissdsp.beamformer as bf
 
+from utils import custom_beamformer
+
 
 def load_scm(data_base_path, idx, fs, m):
     path = f'{data_base_path}{idx}.npy'
@@ -31,7 +33,7 @@ def load_pca(database_path):
     return pca, pca_dict
 
 def compute_mvdr(Ys, TTs, RRsInv):
-    ws = bf.mvdr(TTs, RRsInv) # Compute mvdr weights
+    ws = custom_beamformer.mvdr(TTs, RRsInv) # Compute mvdr weights
     Zs = bf.beam(Ys, ws)  # Perform beamforming
     return Zs, ws
 

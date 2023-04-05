@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import rosbag
+import rospy
 import numpy as np
+
+from time import time
 
 from audio_utils import get_format_information, convert_audio_data_to_numpy_frames, convert_numpy_frames_to_audio_data
 
@@ -10,7 +13,10 @@ from audio_utils.msg import AudioFrame
 import kissdsp.io as io
 
 bag_names = [
-    'AL1'
+    # 'AL21',
+    # 'AL23',
+    # 'AL22',
+    'mix'
 ]
 
 for bag_name in bag_names:
@@ -37,21 +43,27 @@ for bag_name in bag_names:
 
     new_frames_list = np.array(new_frames_list)
 
-    bag = rosbag.Bag(bag_path_out, 'w')
+    data = []
     for i, frames in enumerate(new_frames_list):
-        data = convert_numpy_frames_to_audio_data(get_format_information(msg.format), frames)
+        data.append(convert_numpy_frames_to_audio_data(get_format_information(msg.format), frames))
 
+    rospy.init_node('allo')
+    bag = rosbag.Bag(bag_path_out, 'w')
+    rate = rospy.Rate(int(32000 / 256))
+
+    for i, d in enumerate(data):
         amsg = AudioFrame()
 
         amsg.header.seq = i
-
         amsg.format = msg.format
         amsg.channel_count = msg.channel_count
         amsg.sampling_frequency = msg.sampling_frequency
         amsg.frame_sample_count = newStep
-        amsg.data = data
+        amsg.data = d
 
         bag.write('audio_out', amsg)
+
+        rate.sleep()
 
     bag.close()
 

@@ -38,7 +38,7 @@ def save_scm(wav, path, frame_size, hop_length):
     return arr_tf
 
 def save_pca(tfs, database_path):
-    pca = PCA(n_components=min(300, len(tfs)))
+    pca = PCA(n_components=min(50, len(tfs)))
     pca.fit(tfs)
     pca_dict = pca.transform(tfs)
 
@@ -66,7 +66,8 @@ def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_info
         frames_all.append(frames)
 
     frames_all = np.hstack(frames_all)
-    len_window = msg.frame_sample_count + int(overlap * frame_size)
+    n_data = 6
+    len_window = overlap*frame_size+n_data*hop_length
 
     i = 0
     while (i+len_window)<frames_all.shape[1]:
