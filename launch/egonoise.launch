@@ -21,7 +21,7 @@
     <arg name="format" default="signed_32"/>
     <arg name="overlap" default="1.5"/>
     <arg name="hop_length" default="256"/>
-    <arg name="calibration_step" default="2000"/>
+    <arg name="calibration_step" default="4000"/>
     <arg name="latency_us" default="40000"/>
     <arg name="calibration_duration" default="90"/>
     <arg name="database_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"/>

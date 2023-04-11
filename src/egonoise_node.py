@@ -11,6 +11,8 @@ import kissdsp.spatial as sp
 
 from time import time
 
+from utils import custom_beamformer as cb
+
 
 class EgoNoiseNode:
     def __init__(self):
@@ -32,9 +34,14 @@ class EgoNoiseNode:
         self._audio_pub = rospy.Publisher('audio_in', AudioFrame, queue_size=10)
         self._audio_sub = rospy.Subscriber('audio_out', AudioFrame, self._audio_cb, queue_size=10)
 
-        self._n_batch = 6
+        self._n_batch = 1
+        self._n_scm = 60
         self._overlap = 1.5
-        self._frames = np.ones((self._channel_count, int(self._overlap*self._frame_size+self._n_batch*self._hop_length)))
+
+        self._frames = np.zeros((self._channel_count, int(self._overlap*self._frame_size+self._n_batch*self._hop_length)))
+        self._n_frames = 0
+        self._tranfert = True
+
         self._list_YYs = []
         self._Zs = None
         self._seq = 0
@@ -50,8 +57,12 @@ class EgoNoiseNode:
 
         frames = np.array(convert_audio_data_to_numpy_frames(self._input_format_information, msg.channel_count, msg.data))
 
+        while self._n_frames>=self._n_batch:
+            rospy.sleep(0.0005)
+
         self._frames[:, :-self._hop_length] = self._frames[:, self._hop_length:]
         self._frames[:, -self._hop_length:] = frames
+        self._n_frames += 1
 
         self._seq += 1
 
@@ -68,19 +79,28 @@ class EgoNoiseNode:
 
             self._audio_pub.publish(self._audio_frame_msg)
 
-        print(f'CallBack Time: {time() - time0}')
+            print(f'CallBack Time: {time() - time0} - Yes')
+        else:
+            pass
+            print(f'CallBack Time: {time() - time0} - No')
 
     def noise_reduction(self):
-        if self._seq>self._n_batch:
-            time0 = time()
+        if self._seq>=self._n_batch:
 
-            Ys = fb.stft(self._frames, frame_size=self._frame_size, hop_size=self._hop_length)
-            YYs = sp.scm(sp.xspec(Ys))
+
+            while(self._n_frames<self._n_batch):
+                rospy.sleep(0.0005)
+
+            frames = self._frames.copy()
+            self._n_frames = 0
+
+            Ys = fb.stft(frames, frame_size=self._frame_size, hop_size=self._hop_length)
+            YYs = cb.scm(Ys)
 
             if len(self._list_YYs)==0:
                 self._YYs = YYs
                 self._list_YYs.append(YYs)
-            elif len(self._list_YYs)<self._n_batch:
+            elif len(self._list_YYs)<(self._n_scm/self._n_batch):
                 self._YYs += YYs
                 self._list_YYs.append(YYs)
             else:
@@ -88,22 +108,25 @@ class EgoNoiseNode:
                 self._YYs -= self._list_YYs.pop(0)
                 self._list_YYs.append(YYs)
 
+            cum_YYs = self._YYs/len(self._list_YYs)
+
+
+
             # PCA
-            val = compute_pca(YYs, self._pca)
+            val = compute_pca(cum_YYs, self._pca)
             diff = np.sum(abs(val - self._pca_dict), axis=1)
             idx = np.argmin(diff)
-            RRsInv = load_scm(self._database_path, idx, self._frame_size, len(self._frames))
+            time0 = time()
+
+            RRsInv = load_scm(self._database_path, idx, self._frame_size, len(frames))
+
+            # print(f'Reduction Time: {time() - time0}')
 
             # MVDR
             Zs, ws = compute_mvdr(Ys, YYs, RRsInv)
 
             zs = fb.istft(Zs, hop_size=self._hop_length)
             self._zs = list(zs[:, int(self._overlap/2*self._frame_size):-int(self._overlap/2*self._frame_size)].reshape(self._n_batch,  self._hop_length))
-            # print(list(self._zs))
-
-            print(f'Reduction Time: {time() - time0}')
-
-
 
 
 
@@ -111,9 +134,7 @@ def main():
     rospy.init_node('egonoise_node', log_level=rospy.INFO)
     egonoise_node = EgoNoiseNode()
 
-    rospy.sleep(1)
-
-    r = rospy.Rate((32000/(egonoise_node._n_batch*256)))
+    r = rospy.Rate((32000/(egonoise_node._n_batch*egonoise_node._hop_length)))
 
     while not rospy.is_shutdown():
         egonoise_node.noise_reduction()
