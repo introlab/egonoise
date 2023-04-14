@@ -1,6 +1,7 @@
 # egonoise
 
 The goal of this project is to create a system able to reduce easily the egonoise of a robot using the Minimum Variance Distortionless Response (MVDR) algorithm.
+This branch is the new version of the project. The data is process faster. Last version is available on the other branch.
 
 Author(s): Pierre-Olivier Lagacé
 
@@ -35,11 +36,16 @@ Expication: This node allow to train de database with a rosbag using the command
 Parameters:
  - input_format
  - database_path
- - bag_name
+ - bag_calibration
+ - bag_calibration_path
+ - sampling_frequency
  - frame_size
+ - frame_sample_count
  - hop_length
  - overlap
- - step
+ - calibration_step
+ - n_frame_scm
+ - n_batch
 
 ### calibration_node.py 
 Expication: This node allow to train de database with live input using the command `roslaunch egonoise egonoise.launch calibration_node:=true`.
@@ -54,6 +60,7 @@ Parameters:
  - hop_length
  - calibration_duration
  - step
+ - n_frame_scm
 
 Topics (Sub and Pub)
  - Sub: audio_out
@@ -66,27 +73,15 @@ Parameters:
  - output_format
  - database_path
  - frame_size
+ - sampling_frequency
  - channel_count
  - overlap
  - hop_length
+ - n_frame_scm
+ - n_batch
 
 Topics (Sub and Pub)
  - Sub: audio_out
- - Pub: audio_in
-
-### egonoise_run.py
-Expication: This node allow to use the framework to filtered the signal from rosbag using the command `roslaunch egonoise egonoise.launch egonoise_run:=true`
-
-Parameters:
- - input_format
- - output_format
- - database_path
- - frame_size
- - channel_count
- - overlap
- - hop_length
-
-Topics (Sub and Pub)
  - Pub: audio_in
 
 ## Setup RaspberryPi
