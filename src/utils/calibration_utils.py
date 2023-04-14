@@ -1,35 +1,28 @@
 #!/usr/bin/env python3
-import os
-import sys
 
+import os
 import rosbag
 import numpy as np
 import shutil
-import time
 import pickle
 
 from sklearn.decomposition import PCA
 
 from audio_utils import convert_audio_data_to_numpy_frames
-import kissdsp.io as io
 import kissdsp.filterbank as fb
-import kissdsp.spatial as sp
 
-from utils import list_info2 as list_info
-
+from utils import beamformer_utils as bu
 
 
 def save_scm(wav, path, frame_size, hop_length):
     Rs = fb.stft(wav, frame_size=frame_size, hop_size=hop_length)
-    RRs = sp.scm(sp.xspec(Rs))
+    RRs = bu.scm(Rs)
     RRsInv = np.linalg.inv(RRs)
 
     idx = np.triu_indices(wav.shape[0])
 
-    # Saving inverse RRs
-    arrInv = np.array([RRsInv.real, RRsInv.imag])
-    arrInv_t = arrInv[:, :, idx[0], idx[1]]
-    arrInv_tf = arrInv_t.flatten()
+    # Saving inverse
+    arrInv_tf = np.array((RRsInv.real, RRsInv.imag)).flatten()
 
     np.save(path, arrInv_tf)
 
@@ -41,7 +34,7 @@ def save_scm(wav, path, frame_size, hop_length):
     return arr_tf
 
 def save_pca(tfs, database_path):
-    pca = PCA(n_components=min(300, len(tfs)))
+    pca = PCA(n_components=min(30, len(tfs)))
     pca.fit(tfs)
     pca_dict = pca.transform(tfs)
 
@@ -57,22 +50,22 @@ def reset_database(database_path):
     except OSError as e:
         print("Error: %s : %s" % (database_path, e.strerror))
 
-def calibration_run(bag_path, frame_size, hop_length, overlap, input_format_information, database_path, step=2000):
-    tfs = []
+def calibration_run(bag_calibration_path, list_bag_calibration, frame_size, hop_length, overlap, input_format_information, database_path, n_frame_scm, step=2000):
     reset_database(database_path)
-
+    tfs = []
     idx = 0
-    for bag in list_info.list_bag_database:
-        bag_path_ = f'{bag_path}{bag}.bag'
+    len_window = int(n_frame_scm * hop_length)
 
-        frames_all  = []
-        for _, msg, _ in rosbag.Bag(bag_path_).read_messages():
+    for b in list_bag_calibration:
+        bag_path = f'{bag_calibration_path}{b}'
+        frames_all = []
+        print(b)
+        for _, msg, _ in rosbag.Bag(bag_path).read_messages():
             frames = convert_audio_data_to_numpy_frames(input_format_information, msg.channel_count, msg.data)
             frames = np.array(frames)
             frames_all.append(frames)
 
         frames_all = np.hstack(frames_all)
-        len_window = msg.frame_sample_count + int(overlap * frame_size)
 
         i = 0
         while (i+len_window)<frames_all.shape[1]:

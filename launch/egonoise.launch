@@ -11,23 +11,26 @@
     <arg name="audio_listen" default="false"/>
     <arg name="merging" default="false"/>
 
-    <!-- Egonoise node -->
-    <arg name="research" default="true"/>
+    <!-- Egonoise -->
     <arg name="channel_count_in" default="16"/>
     <arg name="channel_count_out" default="1"/>
     <arg name="sampling_frequency" default="32000"/>
-    <arg name="frame_sample_count" default="16000"/>
-    <arg name="frame_size" default="2048"/>
+    <arg name="frame_sample_count" default="256"/>
+    <arg name="frame_size" default="1024"/>
     <arg name="format" default="signed_32"/>
-    <arg name="overlap" default="3.1875"/>
+    <arg name="overlap" default="2.0"/>
+    <arg name="n_frame_scm" default="60"/>
+    <arg name="n_batch" default="3"/>
     <arg name="hop_length" default="256"/>
-    <arg name="calibration_step" default="2000"/>
+    <arg name="calibration_step" default="4000"/>
     <arg name="latency_us" default="40000"/>
-    <arg name="calibration_duration" default="90"/>
+    <arg name="calibration_duration" default="5"/>
     <arg name="database_path" default="/home/pierre-olivier/catkin_ws/src/egonoise/src/database/"/>
     <arg name="bag_speech" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/237-126133-0000.bag"/>
     <arg name="bag_noise" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004/AL12.bag"/>
-    <arg name="bag_calibration" default="/home/pierre-olivier/catkin_ws/src/bag/article/2008/"/>
+    <arg name="bag_calibration_path" default="/home/pierre-olivier/catkin_ws/src/bag/article/1004-008/"/>
+    <arg name="bag_calibration" default="AL21.bag,AL22.bag"/>
+
 
     <!-- Audio utils -->
     <arg name="pulse_audio_sink" default="alsa_output.pci-0000_00_1f.3.analog-stereo"/>
@@ -57,16 +60,17 @@
     <!-- CALIBRATION RUN -->
     <node pkg="egonoise" type="calibration_run.py" name="calibration_run" output="screen" if="$(arg calibration_run)">
         <param name="input_format" value="$(arg format)"/>
+        <param name="database_path" value="$(arg database_path)"/>
+        <param name="bag_calibration" value="$(arg bag_calibration)"/>
+        <param name="bag_calibration_path" value="$(arg bag_calibration_path)"/>
         <param name="sampling_frequency" value="$(arg sampling_frequency)"/>
         <param name="frame_size" value="$(arg frame_size)"/>
         <param name="frame_sample_count" value="$(arg frame_sample_count)"/>
-        <param name="database_path" value="$(arg database_path)"/>
-        <param name="bag_name" value="$(arg bag_calibration)"/>
-        <param name="frame_size" value="$(arg frame_size)"/>
         <param name="hop_length" value="$(arg hop_length)"/>
         <param name="overlap" value="$(arg overlap)"/>
-        <param name="research" value="$(arg research)"/>
         <param name="calibration_step" value="$(arg calibration_step)"/>
+        <param name="n_frame_scm" value="$(arg n_frame_scm)"/>
+        <param name="n_batch" value="$(arg n_batch)"/>
     </node>
 
     <!-- CALIBRATION NODE -->
@@ -83,6 +87,7 @@
         <param name="overlap" value="$(arg overlap)"/>
         <param name="channel_count" value="$(arg channel_count_in)"/>
         <param name="calibration_step" value="$(arg calibration_step)"/>
+        <param name="n_frame_scm" value="$(arg n_frame_scm)"/>
     </node>
 
     <!-- EGONOISE NODE -->
@@ -91,23 +96,12 @@
         <param name="output_format" value="$(arg format)"/>
         <param name="database_path" value="$(arg database_path)"/>
         <param name="frame_size" value="$(arg frame_size)"/>
+        <param name="sampling_frequency" value="$(arg sampling_frequency)"/>
         <param name="channel_count" value="$(arg channel_count_in)"/>
         <param name="overlap" value="$(arg overlap)"/>
         <param name="hop_length" value="$(arg hop_length)"/>
-    </node>
-
-    <!-- EGONOISE  RUN -->
-    <node pkg="egonoise" type="egonoise_run.py" name="egonoise_run" output="screen" if ="$(arg egonoise_run)">
-        <param name="input_format" value="$(arg format)"/>
-        <param name="output_format" value="$(arg format)"/>
-        <param name="database_path" value="$(arg database_path)"/>
-        <param name="frame_size" value="$(arg frame_size)"/>
-        <param name="channel_count" value="$(arg channel_count_in)"/>
-        <param name="publish" value="$(arg audio_listen)"/>
-        <param name="overlap" value="$(arg overlap)"/>
-        <param name="hop_length" value="$(arg hop_length)"/>
-        <param name="bag_noise" value="$(arg bag_noise)"/>
-        <param name="bag_speech" value="$(arg bag_speech)"/>
+        <param name="n_frame_scm" value="$(arg n_frame_scm)"/>
+        <param name="n_batch" value="$(arg n_batch)"/>
     </node>
 
     <!-- AUDIO LISTEN -->
